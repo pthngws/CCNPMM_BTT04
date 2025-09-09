@@ -227,44 +227,59 @@ const ProductsPage = () => {
 
                 {/* Header */}
                 <Card style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    borderRadius: 'var(--radius-xl)',
+                    boxShadow: 'var(--shadow-lg)',
                     border: 'none',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white'
+                    background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%)',
+                    color: 'white',
+                    marginBottom: 'var(--space-6)'
                 }}>
                     <Row justify="space-between" align="middle">
-                        <Col>
-                            <Title level={2} style={{
-                                margin: 0,
-                                color: 'white',
-                                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
-                            }}>
-                                {useAdvancedSearch ? '🔍 Kết quả tìm kiếm' : '🛍️ Tất cả sản phẩm'}
-                            </Title>
-                            {useAdvancedSearch && searchResults && (
-                                <Text style={{
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    fontSize: '16px',
-                                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
-                                }}>
-                                    ✨ Tìm thấy {searchResults.pagination?.totalProducts || 0} sản phẩm
-                                </Text>
-                            )}
+                        <Col xs={24} md={16}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                                <div style={{
+                                    width: '4px',
+                                    height: '40px',
+                                    background: 'rgba(255, 255, 255, 0.8)',
+                                    borderRadius: 'var(--radius-full)'
+                                }} />
+                                <div>
+                                    <Title level={2} style={{
+                                        margin: 0,
+                                        color: 'white',
+                                        fontSize: 'var(--font-size-3xl)',
+                                        fontWeight: '700'
+                                    }}>
+                                        {useAdvancedSearch ? 'Kết quả tìm kiếm' : 'Tất cả sản phẩm'}
+                                    </Title>
+                                    {useAdvancedSearch && searchResults && (
+                                        <Text style={{
+                                            color: 'rgba(255, 255, 255, 0.9)',
+                                            fontSize: 'var(--font-size-lg)',
+                                            fontWeight: '500'
+                                        }}>
+                                            Tìm thấy {searchResults.pagination?.totalProducts || 0} sản phẩm
+                                        </Text>
+                                    )}
+                                </div>
+                            </div>
                         </Col>
-                        <Col>
+                        <Col xs={24} md={8} style={{ textAlign: 'right' }}>
                             {useAdvancedSearch && (
                                 <Button
                                     onClick={handleBackToNormal}
                                     style={{
-                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        background: 'rgba(255, 255, 255, 0.15)',
                                         border: '1px solid rgba(255, 255, 255, 0.3)',
                                         color: 'white',
-                                        borderRadius: '8px',
-                                        fontWeight: 'bold'
+                                        borderRadius: 'var(--radius-lg)',
+                                        fontWeight: '600',
+                                        height: '44px',
+                                        padding: '0 24px',
+                                        backdropFilter: 'blur(4px)'
                                     }}
                                 >
-                                    ← Quay lại danh sách
+                                    Quay lại danh sách
                                 </Button>
                             )}
                         </Col>
@@ -375,37 +390,54 @@ const ProductsPage = () => {
                     </LazyLoading>
 
                     {products.length === 0 && !loading && (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '60px 20px',
-                            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-                            borderRadius: '12px',
-                            margin: '20px 0'
-                        }}>
-                            <div style={{ fontSize: '64px', marginBottom: '20px' }}>🔍</div>
-                            <Title level={3} style={{ color: '#666', marginBottom: '16px' }}>
+                        <div className="empty-container">
+                            <div style={{
+                                width: '80px',
+                                height: '80px',
+                                background: 'linear-gradient(135deg, var(--gray-200) 0%, var(--gray-300) 100%)',
+                                borderRadius: 'var(--radius-full)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: 'var(--space-6)'
+                            }}>
+                                <SearchOutlined style={{ 
+                                    fontSize: '32px', 
+                                    color: 'var(--gray-500)' 
+                                }} />
+                            </div>
+                            <Title level={3} style={{ 
+                                color: 'var(--gray-700)', 
+                                marginBottom: 'var(--space-4)',
+                                fontWeight: '600'
+                            }}>
                                 Không tìm thấy sản phẩm nào
                             </Title>
                             <Text style={{
-                                color: '#999',
-                                fontSize: '16px',
+                                color: 'var(--gray-500)',
+                                fontSize: 'var(--font-size-lg)',
                                 display: 'block',
-                                marginBottom: '24px'
+                                marginBottom: 'var(--space-8)',
+                                maxWidth: '400px',
+                                lineHeight: '1.6'
                             }}>
-                                Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
+                                Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy sản phẩm phù hợp
                             </Text>
                             <Button
                                 type="primary"
                                 size="large"
                                 onClick={handleBackToNormal}
                                 style={{
-                                    borderRadius: '8px',
-                                    background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%)',
                                     border: 'none',
-                                    boxShadow: '0 2px 8px rgba(24, 144, 255, 0.3)'
+                                    boxShadow: 'var(--shadow-md)',
+                                    height: '48px',
+                                    padding: '0 32px',
+                                    fontWeight: '600'
                                 }}
                             >
-                                🔄 Thử lại
+                                Thử lại
                             </Button>
                         </div>
                     )}

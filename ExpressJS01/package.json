@@ -5,11 +5,10 @@
   "scripts": {
     "dev": "nodemon ./server.js",
     "start": "nodemon ./server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "reindex": "node ./src/scripts/reindexProducts.js",
-    "reindex-static": "node ./src/scripts/reindexStaticData.js",
-    "test-search": "node ./src/scripts/testSearch.js",
-    "quick-test": "node ./src/scripts/quickTest.js"
+    "seed-db": "node src/scripts/seedData.js",
+    "reindex": "node src/scripts/reindexProducts.js",
+    "update-images": "node src/scripts/updateImages.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

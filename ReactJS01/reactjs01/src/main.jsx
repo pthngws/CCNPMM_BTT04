@@ -10,6 +10,7 @@ import LoginPage from './pages/login.jsx';
 import CategoriesPage from './pages/categories.jsx';
 import CategoryProductsPage from './pages/categoryProducts.jsx';
 import ProductsPage from './pages/products.jsx';
+import NotFound from './pages/NotFound.jsx';
 import { AuthWrapper } from './components/context/auth.context.jsx';
 import ProtectedRoute from './components/common/ProtectedRoute.jsx';
 
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />
+  },
+  {
+    path: "*",
+    element: <NotFound />
   }
 ]);
 

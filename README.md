@@ -1,168 +1,174 @@
-# Full Stack E-commerce Application
+# 🛍️ E-commerce với Elasticsearch Search
 
-Ứng dụng thương mại điện tử với Node.js/Express backend và React frontend, hỗ trợ hiển thị sản phẩm theo danh mục với Lazy Loading.
+Hệ thống thương mại điện tử với tìm kiếm thông minh sử dụng MongoDB + Elasticsearch.
 
-## Tính năng chính
+## 🚀 Quick Start
 
-### Backend (Express.js)
-- **Authentication**: Đăng ký, đăng nhập với JWT
-- **Product Management**: Quản lý sản phẩm với phân trang
-- **Category Management**: Quản lý danh mục sản phẩm
-- **API Endpoints**: RESTful API với pagination
-- **Database**: MongoDB với Mongoose
+### 1. Cài đặt MongoDB
+```bash
+docker run -d --name mongodb -p 27017:27017 mongo:latest
+```
 
-### Frontend (React.js)
-- **Responsive Design**: Sử dụng Ant Design
-- **Lazy Loading**: Infinite scroll với Intersection Observer API
-- **Product Display**: Hiển thị sản phẩm theo danh mục
-- **Search & Filter**: Tìm kiếm và lọc sản phẩm
-- **Authentication**: Đăng nhập/đăng ký với protected routes
+### 2. Cài đặt Elasticsearch
+```bash
+docker run -d --name elasticsearch \
+  -p 9200:9200 -p 9300:9300 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  elasticsearch:8.11.0
+```
 
-## Cài đặt và chạy
+### 3. Cấu hình .env
+Tạo file `.env` trong `ExpressJS01`:
+```env
+DB_HOST=localhost
+DB_PORT=27017
+DB_NAME=ecommerce_db
+JWT_SECRET=your_jwt_secret_key
+PORT=8080
+ELASTICSEARCH_URL=http://localhost:9200
+ELASTICSEARCH_USERNAME=elastic
+ELASTICSEARCH_PASSWORD=changeme
+```
 
-### 1. Backend Setup
-
+### 4. Khởi động Backend
 ```bash
 cd ExpressJS01
 npm install
-```
-
-Tạo file `.env` trong thư mục `ExpressJS01`:
-```env
-PORT=8080
-MONGODB_URI=mongodb://localhost:27017/ecommerce
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE=7d
-```
-
-Chạy seed data để thêm dữ liệu mẫu:
-```bash
-node seed.js
-```
-
-Chạy server:
-```bash
 npm run dev
 ```
 
-### 2. Frontend Setup
-
+### 5. Khởi động Frontend
 ```bash
 cd ReactJS01/reactjs01
 npm install
-```
-
-Cấu hình backend URL trong `src/config/config.js`:
-```javascript
-BACKEND_URL: 'http://localhost:8080'
-```
-
-Chạy frontend:
-```bash
 npm run dev
 ```
 
-## API Endpoints
+## ✨ Tính năng
 
-### Public Routes (không cần authentication)
-- `GET /v1/api/categories` - Lấy tất cả danh mục
-- `GET /v1/api/categories/:id` - Lấy danh mục theo ID
-- `GET /v1/api/products` - Lấy tất cả sản phẩm (có pagination)
-- `GET /v1/api/products/:id` - Lấy sản phẩm theo ID
-- `GET /v1/api/categories/:categoryId/products` - Lấy sản phẩm theo danh mục
+### 🔍 **Advanced Search**
+- **Fuzzy Search**: Tìm kiếm thông minh với khả năng sửa lỗi chính tả
+- **Multi-field Search**: Tìm kiếm trên tên, mô tả, danh mục, tags
+- **Real-time Suggestions**: Gợi ý tìm kiếm khi gõ
 
-### Protected Routes (cần authentication)
-- `POST /v1/api/register` - Đăng ký
-- `POST /v1/api/login` - Đăng nhập
-- `GET /v1/api/user` - Lấy thông tin user
-- `GET /v1/api/account` - Lấy thông tin tài khoản
-- `POST /v1/api/categories` - Tạo danh mục mới
-- `POST /v1/api/products` - Tạo sản phẩm mới
+### 🎛️ **Advanced Filters**
+- **Price Range**: Lọc theo khoảng giá với slider
+- **Rating Filter**: Lọc theo đánh giá
+- **Category Filter**: Lọc theo danh mục
+- **Special Filters**: isOnSale, isFeatured
+- **Sort Options**: Nhiều cách sắp xếp
 
-## Cấu trúc dự án
+### 🎨 **Modern UI**
+- **Responsive Design**: Tối ưu cho mọi thiết bị
+- **Beautiful Interface**: Giao diện hiện đại với gradients
+- **Smooth Animations**: Hiệu ứng mượt mà
+- **Interactive Elements**: Hover effects, transitions
 
-### Backend
-```
-ExpressJS01/
-├── src/
-│   ├── config/          # Cấu hình database, view engine
-│   ├── controllers/     # Controllers cho API
-│   ├── middleware/      # Authentication, public auth
-│   ├── models/          # MongoDB models
-│   ├── routes/          # API routes
-│   ├── services/        # Business logic
-│   └── scripts/         # Seed data script
-├── server.js            # Entry point
-└── seed.js              # Script chạy seed data
-```
+## 📊 Dữ liệu mẫu
 
-### Frontend
-```
-ReactJS01/reactjs01/
-├── src/
-│   ├── components/
-│   │   ├── common/      # ProductCard, CategoryCard, LazyLoading
-│   │   ├── context/     # Auth context
-│   │   └── layout/      # Header component
-│   ├── config/          # App configuration
-│   ├── pages/           # Các trang của ứng dụng
-│   ├── styles/          # CSS styles
-│   └── util/            # API calls, axios config
-└── package.json
-```
-
-## Tính năng Lazy Loading
-
-### Cách hoạt động
-1. **Intersection Observer API**: Theo dõi khi user scroll đến cuối danh sách
-2. **Pagination**: Load thêm sản phẩm theo từng trang (12 sản phẩm/trang)
-3. **Infinite Scroll**: Tự động load thêm khi scroll xuống cuối
-4. **Loading States**: Hiển thị loading indicator khi đang tải
-
-### Implementation
-- Component `LazyLoading` sử dụng Intersection Observer
-- API hỗ trợ pagination với `page` và `limit` parameters
-- Frontend quản lý state cho `currentPage`, `hasMore`, `loading`
-
-## Dữ liệu mẫu
-
-Script seed data tạo:
 - **4 danh mục**: Điện thoại, Laptop, Phụ kiện, Đồng hồ
-- **24 sản phẩm**: 6 sản phẩm mỗi danh mục
-- **Thông tin đầy đủ**: Tên, mô tả, giá, hình ảnh, stock, rating
+- **24 sản phẩm**: Mỗi danh mục 6 sản phẩm
+- **Đầy đủ thông tin**: price, rating, tags, isFeatured, isOnSale
 
-## Sử dụng
+## 🛠️ Scripts
 
-1. **Trang chủ**: Hiển thị danh mục và sản phẩm nổi bật
-2. **Danh mục**: Xem tất cả danh mục sản phẩm
-3. **Sản phẩm theo danh mục**: Click vào danh mục để xem sản phẩm
-4. **Tất cả sản phẩm**: Xem tất cả sản phẩm với lazy loading
-5. **Tìm kiếm**: Tìm kiếm sản phẩm theo tên
-6. **Lọc**: Lọc theo danh mục và sắp xếp
+```bash
+npm run dev          # Start development server
+npm start           # Start production server
+```
 
-## Công nghệ sử dụng
+## 🔗 API Endpoints
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JWT
-- bcrypt
-- CORS
+### Products
+```
+GET /v1/api/products                    # Lấy tất cả products
+GET /v1/api/products/:id                # Lấy product theo ID
+GET /v1/api/products/search             # Advanced search
+GET /v1/api/products/suggestions        # Search suggestions
+```
 
-### Frontend
-- React 19
-- React Router DOM
-- Ant Design
-- Axios
-- Vite
+### Categories
+```
+GET /v1/api/categories                  # Lấy tất cả categories
+GET /v1/api/categories/:id              # Lấy category theo ID
+GET /v1/api/categories/:id/products     # Lấy products theo category
+```
 
-## Lưu ý
+## 🧪 Test
 
-- Đảm bảo MongoDB đang chạy trước khi start backend
-- Cấu hình đúng URL backend trong frontend config
-- Chạy seed data để có dữ liệu mẫu
-- API products và categories là public, không cần authentication
+### Test API
+```bash
+# Basic search
+curl "http://localhost:8080/v1/api/products/search?query=iPhone"
 
+# Advanced search
+curl "http://localhost:8080/v1/api/products/search?isOnSale=true&minPrice=1000000"
 
+# Suggestions
+curl "http://localhost:8080/v1/api/products/suggestions?q=iph&limit=5"
+```
+
+### Test Frontend
+Mở: http://localhost:5173/products
+
+## 🐛 Troubleshooting
+
+### MongoDB không kết nối
+```bash
+docker ps | grep mongodb
+docker logs mongodb
+```
+
+### Elasticsearch không kết nối
+```bash
+curl http://localhost:9200
+docker logs elasticsearch
+```
+
+### Reindex lại data
+Data sẽ tự động reindex khi khởi động server
+
+## 📁 Cấu trúc dự án
+
+```
+├── ExpressJS01/                 # Backend
+│   ├── src/
+│   │   ├── config/             # Cấu hình
+│   │   ├── controllers/        # API controllers
+│   │   ├── models/             # MongoDB models
+│   │   ├── services/           # Business logic
+│   │   ├── routes/             # API routes
+│   │   ├── scripts/            # Utility scripts (nếu cần)
+│   └── server.js               # Main server file
+│
+└── ReactJS01/reactjs01/        # Frontend
+    ├── src/
+    │   ├── components/         # React components
+    │   ├── pages/              # Page components
+    │   ├── util/               # Utilities
+    │   └── styles/             # CSS styles
+    └── package.json
+```
+
+## 🎯 Kiến trúc
+
+```
+MongoDB → Elasticsearch → API → Frontend
+```
+
+1. **MongoDB**: Database chính lưu trữ dữ liệu
+2. **Elasticsearch**: Search engine index từ MongoDB
+3. **API**: Cung cấp endpoints cho frontend
+4. **Frontend**: Giao diện người dùng
+
+## 🚀 Production Ready
+
+- ✅ **Scalable Architecture**: MongoDB + Elasticsearch
+- ✅ **Modern UI/UX**: Responsive design với Ant Design
+- ✅ **Advanced Search**: Fuzzy search với filters
+- ✅ **Performance Optimized**: Lazy loading, pagination
+- ✅ **Error Handling**: Graceful error handling
+- ✅ **Documentation**: Đầy đủ hướng dẫn
+
+Hệ thống sẵn sàng cho production! 🎉

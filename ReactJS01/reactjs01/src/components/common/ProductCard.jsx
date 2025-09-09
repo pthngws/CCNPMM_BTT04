@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Image, Typography, Space, Tag, Button, Badge, Tooltip } from 'antd';
 import { ShoppingCartOutlined, EyeOutlined, StarOutlined, FireOutlined, CrownOutlined } from '@ant-design/icons';
+import { getRandomProductImage } from '../../constants/images';
 
 const { Title, Text } = Typography;
 
@@ -22,23 +23,38 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
     return (
         <Card
             hoverable
+            className="card-hover"
             style={{
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                border: 'none',
-                transition: 'all 0.3s ease',
-                overflow: 'hidden'
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-sm)',
+                border: '1px solid var(--border-light)',
+                overflow: 'hidden',
+                background: 'white',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
             }}
-            bodyStyle={{ padding: '16px' }}
+            bodyStyle={{ 
+                padding: 'var(--space-md)',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column'
+            }}
             cover={
-                <div style={{ position: 'relative', overflow: 'hidden' }}>
+                <div style={{ 
+                    position: 'relative', 
+                    overflow: 'hidden',
+                    aspectRatio: '1',
+                    background: 'var(--background-light)'
+                }}>
                     <Image
                         alt={product.name}
-                        src={product.images?.[0] || 'https://via.placeholder.com/300x300?text=No+Image'}
+                        src={product.images?.[0] || getRandomProductImage()}
                         style={{ 
-                            height: 200, 
+                            width: '100%',
+                            height: '100%',
                             objectFit: 'cover',
-                            transition: 'transform 0.3s ease'
+                            transition: 'var(--transition)'
                         }}
                         preview={false}
                         onMouseEnter={(e) => {
@@ -50,36 +66,62 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     />
                     
                     {/* Badges */}
-                    <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ 
+                        position: 'absolute', 
+                        top: 'var(--space-sm)', 
+                        left: 'var(--space-sm)', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: 'var(--space-xs)',
+                        zIndex: 2
+                    }}>
                         {discount > 0 && (
                             <Badge 
                                 count={`-${discount}%`}
                                 style={{ 
-                                    backgroundColor: '#ff4d4f',
-                                    boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                                    backgroundColor: 'var(--error-color)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    fontSize: '12px',
+                                    fontWeight: '600'
                                 }}
                             />
                         )}
                         {product.isFeatured && (
                             <Tooltip title="Sản phẩm nổi bật">
-                                <CrownOutlined style={{ 
-                                    color: '#faad14',
-                                    fontSize: '20px',
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
                                     background: 'rgba(255, 255, 255, 0.9)',
                                     borderRadius: '50%',
-                                    padding: '4px'
-                                }} />
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <CrownOutlined style={{ 
+                                        color: 'var(--warning-color)',
+                                        fontSize: '12px'
+                                    }} />
+                                </div>
                             </Tooltip>
                         )}
                         {product.isOnSale && (
                             <Tooltip title="Đang khuyến mãi">
-                                <FireOutlined style={{ 
-                                    color: '#ff4d4f',
-                                    fontSize: '20px',
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
                                     background: 'rgba(255, 255, 255, 0.9)',
                                     borderRadius: '50%',
-                                    padding: '4px'
-                                }} />
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <FireOutlined style={{ 
+                                        color: 'var(--error-color)',
+                                        fontSize: '12px'
+                                    }} />
+                                </div>
                             </Tooltip>
                         )}
                     </div>
@@ -91,16 +133,17 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             color: 'white',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            backdropFilter: 'blur(2px)'
+                            fontSize: 'var(--font-size-lg)',
+                            fontWeight: '600',
+                            backdropFilter: 'blur(2px)',
+                            zIndex: 3
                         }}>
-                            🚫 Hết hàng
+                            Hết hàng
                         </div>
                     )}
                 </div>
@@ -112,13 +155,12 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     onClick={() => onViewDetail(product)}
                     block
                     style={{
-                        borderRadius: '8px',
-                        background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
-                        border: 'none',
-                        boxShadow: '0 2px 8px rgba(24, 144, 255, 0.3)'
+                        borderRadius: 'var(--radius-sm)',
+                        height: '36px',
+                        fontSize: '14px'
                     }}
                 >
-                    👁️ Xem chi tiết
+                    Xem chi tiết
                 </Button>,
                 <Button 
                     type="default" 
@@ -127,95 +169,110 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     disabled={product.stock === 0}
                     block
                     style={{
-                        borderRadius: '8px',
-                        border: '2px solid #f0f0f0',
-                        background: product.stock === 0 ? '#f5f5f5' : '#fff',
-                        color: product.stock === 0 ? '#999' : '#1890ff'
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border-color)',
+                        background: product.stock === 0 ? 'var(--background-light)' : 'white',
+                        color: product.stock === 0 ? 'var(--text-light)' : 'var(--primary-color)',
+                        height: '36px',
+                        fontSize: '14px'
                     }}
                 >
-                    🛒 Thêm vào giỏ
+                    Thêm vào giỏ
                 </Button>
             ]}
         >
-            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Title level={5} style={{ 
                     margin: 0, 
-                    minHeight: 40,
-                    color: '#262626',
+                    marginBottom: 'var(--space-sm)',
+                    color: 'var(--text-color)',
                     fontWeight: '600',
-                    lineHeight: '1.4'
+                    lineHeight: '1.4',
+                    fontSize: '14px',
+                    minHeight: '40px',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
                 }}>
                     {product.name}
                 </Title>
                 
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <Space>
+                <div style={{ marginBottom: 'var(--space-sm)' }}>
+                    <Space align="baseline">
                         <Text strong style={{ 
-                            fontSize: '18px', 
-                            color: '#ff4d4f',
-                            fontWeight: 'bold'
+                            fontSize: '16px', 
+                            color: 'var(--error-color)',
+                            fontWeight: '600'
                         }}>
                             {formatPrice(product.price)}
                         </Text>
                         {product.originalPrice && product.originalPrice > product.price && (
                             <Text delete style={{ 
-                                fontSize: '14px', 
-                                color: '#999',
-                                textDecoration: 'line-through'
+                                fontSize: '12px', 
+                                color: 'var(--text-light)'
                             }}>
                                 {formatPrice(product.originalPrice)}
                             </Text>
                         )}
                     </Space>
-                    
-                    {product.rating > 0 && (
-                        <Space>
-                            <StarOutlined style={{ color: '#faad14' }} />
+                </div>
+                
+                {product.rating > 0 && (
+                    <div style={{ marginBottom: 'var(--space-sm)' }}>
+                        <Space size="small">
+                            <StarOutlined style={{ 
+                                color: 'var(--warning-color)',
+                                fontSize: '12px'
+                            }} />
                             <Text style={{ 
-                                fontSize: '13px',
-                                color: '#666',
+                                fontSize: '12px',
+                                color: 'var(--text-secondary)',
                                 fontWeight: '500'
                             }}>
                                 {product.rating.toFixed(1)} ({product.reviewCount} đánh giá)
                             </Text>
                         </Space>
-                    )}
-                    
-                    <div style={{
-                        background: product.stock > 10 ? '#f6ffed' : product.stock > 0 ? '#fff7e6' : '#fff2f0',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        border: `1px solid ${product.stock > 10 ? '#b7eb8f' : product.stock > 0 ? '#ffd591' : '#ffccc7'}`
-                    }}>
-                        <Text style={{ 
-                            fontSize: '12px',
-                            color: product.stock > 10 ? '#389e0d' : product.stock > 0 ? '#d46b08' : '#cf1322',
-                            fontWeight: '500'
-                        }}>
-                            📦 Còn lại: {product.stock} sản phẩm
-                        </Text>
                     </div>
-                    
-                    {product.tags && product.tags.length > 0 && (
-                        <Space wrap>
+                )}
+                
+                <div style={{
+                    background: product.stock > 10 ? 'var(--success-color)' : product.stock > 0 ? 'var(--warning-color)' : 'var(--error-color)',
+                    color: 'white',
+                    padding: 'var(--space-xs) var(--space-sm)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    marginBottom: 'var(--space-sm)'
+                }}>
+                    {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'} • {product.stock} sản phẩm
+                </div>
+                
+                {product.tags && product.tags.length > 0 && (
+                    <div style={{ marginTop: 'auto' }}>
+                        <Space wrap size="small">
                             {product.tags.slice(0, 2).map((tag, index) => (
                                 <Tag 
                                     key={index} 
                                     size="small"
                                     style={{
-                                        borderRadius: '12px',
-                                        background: 'linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%)',
-                                        border: '1px solid #91d5ff',
-                                        color: '#1890ff'
+                                        borderRadius: 'var(--radius-sm)',
+                                        background: 'var(--primary-light)',
+                                        border: '1px solid var(--primary-color)',
+                                        color: 'var(--primary-color)',
+                                        fontSize: '11px',
+                                        fontWeight: '500',
+                                        padding: '1px 6px'
                                     }}
                                 >
-                                    #{tag}
+                                    {tag}
                                 </Tag>
                             ))}
                         </Space>
-                    )}
-                </Space>
-            </Space>
+                    </div>
+                )}
+            </div>
         </Card>
     );
 };

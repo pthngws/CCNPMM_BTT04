@@ -48,17 +48,14 @@ const bulkIndexProducts = async (products) => {
         const body = [];
         
         for (const product of products) {
-            const category = await Category.findById(product.category);
-            
             const document = {
-                _id: product._id.toString(),
                 name: product.name,
                 description: product.description || '',
                 price: product.price,
                 originalPrice: product.originalPrice || product.price,
                 discount: product.discount || 0,
-                category: product.category.toString(),
-                categoryName: category ? category.name : '',
+                category: product.category._id ? product.category._id.toString() : product.category.toString(),
+                categoryName: product.category.name || '',
                 stock: product.stock || 0,
                 rating: product.rating || 0,
                 reviewCount: product.reviewCount || 0,
@@ -76,8 +73,15 @@ const bulkIndexProducts = async (products) => {
         }
 
         if (body.length > 0) {
-            await client.bulk({ body });
-            console.log(`✅ Bulk indexed ${products.length} products`);
+            const response = await client.bulk({ body });
+            if (response.errors) {
+                console.error('❌ Bulk indexing errors:', response.items.filter(item => item.index.error).map(item => ({
+                    id: item.index._id,
+                    error: item.index.error
+                })));
+            } else {
+                console.log(`✅ Bulk indexed ${products.length} products successfully`);
+            }
         }
         
         return true;
@@ -145,16 +149,48 @@ const searchProducts = async (searchParams) => {
 
         // Thêm fuzzy search nếu có query
         if (query.trim()) {
-            queryBody.body.query.bool.must.push({
-                multi_match: {
-                    query: query,
-                    fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
-                    type: 'best_fields',
-                    fuzziness: 'AUTO',
-                    prefix_length: 1,
-                    max_expansions: 50
-                }
-            });
+            // Nếu query quá ngắn (1-2 ký tự), dùng wildcard search
+            if (query.trim().length <= 2) {
+                queryBody.body.query.bool.must.push({
+                    bool: {
+                        should: [
+                            {
+                                wildcard: {
+                                    name: `*${query.toLowerCase()}*`
+                                }
+                            },
+                            {
+                                wildcard: {
+                                    description: `*${query.toLowerCase()}*`
+                                }
+                            },
+                            {
+                                wildcard: {
+                                    categoryName: `*${query.toLowerCase()}*`
+                                }
+                            },
+                            {
+                                wildcard: {
+                                    tags: `*${query.toLowerCase()}*`
+                                }
+                            }
+                        ],
+                        minimum_should_match: 1
+                    }
+                });
+            } else {
+                // Query dài hơn, dùng fuzzy search
+                queryBody.body.query.bool.must.push({
+                    multi_match: {
+                        query: query,
+                        fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
+                        type: 'best_fields',
+                        fuzziness: 'AUTO',
+                        prefix_length: 0,
+                        max_expansions: 100
+                    }
+                });
+            }
         }
 
         // Thêm filters
@@ -339,7 +375,13 @@ const reindexAllProducts = async () => {
         console.log('🔄 Starting reindex of all products...');
         
         // Xóa index cũ
-        await client.indices.delete({ index: PRODUCTS_INDEX, ignore: [404] });
+        try {
+            await client.indices.delete({ index: PRODUCTS_INDEX });
+        } catch (error) {
+            if (error.meta?.statusCode !== 404) {
+                throw error;
+            }
+        }
         
         // Tạo lại index
         const { initializeIndex } = require('../config/elasticsearch');

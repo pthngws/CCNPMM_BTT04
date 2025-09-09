@@ -5,7 +5,7 @@ const {
     getSearchSuggestionsService,
     getProductByIdService, 
     createProductService 
-} = require('../services/staticDataService');
+} = require('../services/productService');
 
 const getProductsByCategory = async (req, res) => {
     const { categoryId } = req.params;

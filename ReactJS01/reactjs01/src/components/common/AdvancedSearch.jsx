@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Row,
     Col,
@@ -12,9 +12,7 @@ import {
     AutoComplete,
     Switch,
     Divider,
-    Collapse,
     Badge,
-    Tooltip,
     Tag
 } from 'antd';
 import {
@@ -33,19 +31,18 @@ import { advancedSearchProductsApi, getSearchSuggestionsApi } from '../../util/a
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { Panel } = Collapse;
 
-const AdvancedSearch = ({ 
-    onSearchResults, 
-    onLoading, 
-    categories = [], 
-    initialFilters = {} 
+const AdvancedSearch = ({
+    onSearchResults,
+    onLoading,
+    categories = [],
+    initialFilters = {}
 }) => {
     const [searchParams, setSearchParams] = useState({
         query: initialFilters.query || '',
         category: initialFilters.category || '',
         minPrice: initialFilters.minPrice || 0,
-        maxPrice: initialFilters.maxPrice || 1000000,
+        maxPrice: initialFilters.maxPrice || 100000000,
         minRating: initialFilters.minRating || 0,
         maxRating: initialFilters.maxRating || 5,
         isOnSale: initialFilters.isOnSale || null,
@@ -98,7 +95,7 @@ const AdvancedSearch = ({
             };
 
             const response = await advancedSearchProductsApi(params);
-            
+
             if (response && response.EC === 0) {
                 onSearchResults(response.DT);
             } else {
@@ -170,14 +167,15 @@ const AdvancedSearch = ({
     };
 
     return (
-        <Card 
-            style={{ 
-                marginBottom: '24px',
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                border: 'none'
+        <Card
+            style={{
+                marginBottom: 'var(--space-lg)',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-sm)',
+                border: '1px solid var(--border-light)',
+                background: 'white'
             }}
-            bodyStyle={{ padding: '24px' }}
+            bodyStyle={{ padding: 'var(--space-lg)' }}
         >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 {/* Main Search Bar */}
@@ -187,26 +185,18 @@ const AdvancedSearch = ({
                             options={suggestions}
                             value={searchParams.query}
                             onChange={handleSearchChange}
-                            placeholder="🔍 Tìm kiếm sản phẩm với Fuzzy Search..."
+                            placeholder="Tìm kiếm sản phẩm với Elasticsearch..."
                             style={{ width: '100%' }}
                             size="large"
                         >
                             <Input
-                                prefix={<SearchOutlined style={{ color: '#1890ff' }} />}
+                                prefix={<SearchOutlined style={{ color: 'var(--primary-color)' }} />}
                                 onPressEnter={() => handleSearch()}
                                 allowClear
                                 style={{
-                                    borderRadius: '8px',
-                                    border: '2px solid #f0f0f0',
-                                    transition: 'all 0.3s ease'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = '#1890ff';
-                                    e.target.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = '#f0f0f0';
-                                    e.target.style.boxShadow = 'none';
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--border-color)',
+                                    transition: 'var(--transition)'
                                 }}
                             />
                         </AutoComplete>
@@ -218,34 +208,31 @@ const AdvancedSearch = ({
                             size="large"
                             loading={loading}
                             onClick={() => handleSearch()}
-                            style={{ 
+                            style={{
                                 width: '100%',
-                                borderRadius: '8px',
-                                height: '40px',
-                                background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
-                                border: 'none',
-                                boxShadow: '0 2px 8px rgba(24, 144, 255, 0.3)'
+                                borderRadius: 'var(--radius-sm)',
+                                height: '40px'
                             }}
                         >
                             Tìm kiếm
                         </Button>
                     </Col>
                     <Col xs={12} sm={4} md={3}>
-                        <Badge 
-                            count={getActiveFiltersCount()} 
+                        <Badge
+                            count={getActiveFiltersCount()}
                             size="small"
-                            style={{ backgroundColor: '#52c41a' }}
+                            style={{ backgroundColor: 'var(--success-color)' }}
                         >
                             <Button
                                 icon={<FilterOutlined />}
                                 size="large"
                                 onClick={() => setShowAdvanced(!showAdvanced)}
-                                style={{ 
+                                style={{
                                     width: '100%',
-                                    borderRadius: '8px',
+                                    borderRadius: 'var(--radius-sm)',
                                     height: '40px',
-                                    border: '2px solid #f0f0f0',
-                                    background: showAdvanced ? '#f6ffed' : '#fff'
+                                    border: '1px solid var(--border-color)',
+                                    background: showAdvanced ? 'var(--primary-light)' : 'white'
                                 }}
                             >
                                 {showAdvanced ? <UpOutlined /> : <DownOutlined />} Bộ lọc
@@ -257,27 +244,26 @@ const AdvancedSearch = ({
                 {/* Advanced Filters */}
                 {showAdvanced && (
                     <div style={{
-                        background: 'linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)',
-                        borderRadius: '12px',
-                        padding: '24px',
-                        border: '1px solid #e6f7ff'
+                        background: 'var(--background-light)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-lg)',
+                        border: '1px solid var(--border-light)'
                     }}>
-                        <Row gutter={[24, 24]}>
+                        <Row gutter={[16, 16]}>
                             {/* Category Filter */}
                             <Col xs={24} sm={12} md={6}>
-                                <div style={{ marginBottom: '16px' }}>
-                                    <Text strong style={{ fontSize: '14px', color: '#1890ff' }}>
-                                        <TagsOutlined style={{ marginRight: '8px' }} />
+                                <div style={{ marginBottom: 'var(--space-md)' }}>
+                                    <Text strong style={{ fontSize: '14px', color: 'var(--text-color)' }}>
+                                        <TagsOutlined style={{ marginRight: 'var(--space-xs)' }} />
                                         Danh mục
                                     </Text>
                                     <Select
                                         placeholder="Chọn danh mục"
-                                        style={{ width: '100%', marginTop: '8px' }}
+                                        style={{ width: '100%', marginTop: 'var(--space-xs)' }}
                                         value={searchParams.category}
                                         onChange={(value) => handleFilterChange('category', value)}
                                         allowClear
                                         size="large"
-                                        suffixIcon={<TagsOutlined />}
                                     >
                                         {categories.map(category => (
                                             <Option key={category._id} value={category._id}>
@@ -290,17 +276,17 @@ const AdvancedSearch = ({
 
                             {/* Price Range */}
                             <Col xs={24} sm={12} md={6}>
-                                <div style={{ marginBottom: '16px' }}>
-                                    <Text strong style={{ fontSize: '14px', color: '#52c41a' }}>
-                                        <DollarOutlined style={{ marginRight: '8px' }} />
+                                <div style={{ marginBottom: 'var(--space-md)' }}>
+                                    <Text strong style={{ fontSize: '14px', color: 'var(--text-color)' }}>
+                                        <DollarOutlined style={{ marginRight: 'var(--space-xs)' }} />
                                         Khoảng giá
                                     </Text>
-                                    <div style={{ marginTop: '8px' }}>
+                                    <div style={{ marginTop: 'var(--space-xs)' }}>
                                         <Slider
                                             range
                                             min={0}
-                                            max={1000000}
-                                            step={10000}
+                                            max={100000000}
+                                            step={100000}
                                             value={[searchParams.minPrice, searchParams.maxPrice]}
                                             onChange={(value) => {
                                                 handleFilterChange('minPrice', value[0]);
@@ -309,18 +295,13 @@ const AdvancedSearch = ({
                                             tooltip={{
                                                 formatter: formatPrice
                                             }}
-                                            trackStyle={{ background: 'linear-gradient(90deg, #52c41a, #1890ff)' }}
-                                            handleStyle={{ 
-                                                borderColor: '#1890ff',
-                                                boxShadow: '0 2px 8px rgba(24, 144, 255, 0.3)'
-                                            }}
                                         />
-                                        <div style={{ 
-                                            display: 'flex', 
-                                            justifyContent: 'space-between', 
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
                                             fontSize: '12px',
-                                            marginTop: '8px',
-                                            color: '#666'
+                                            marginTop: 'var(--space-xs)',
+                                            color: 'var(--text-secondary)'
                                         }}>
                                             <Tag color="green">{formatPrice(searchParams.minPrice)}</Tag>
                                             <Tag color="blue">{formatPrice(searchParams.maxPrice)}</Tag>
@@ -331,12 +312,12 @@ const AdvancedSearch = ({
 
                             {/* Rating Range */}
                             <Col xs={24} sm={12} md={6}>
-                                <div style={{ marginBottom: '16px' }}>
-                                    <Text strong style={{ fontSize: '14px', color: '#fa8c16' }}>
-                                        <StarOutlined style={{ marginRight: '8px' }} />
+                                <div style={{ marginBottom: 'var(--space-md)' }}>
+                                    <Text strong style={{ fontSize: '14px', color: 'var(--text-color)' }}>
+                                        <StarOutlined style={{ marginRight: 'var(--space-xs)' }} />
                                         Đánh giá
                                     </Text>
-                                    <div style={{ marginTop: '8px' }}>
+                                    <div style={{ marginTop: 'var(--space-xs)' }}>
                                         <Slider
                                             range
                                             min={0}
@@ -350,18 +331,13 @@ const AdvancedSearch = ({
                                             tooltip={{
                                                 formatter: formatRating
                                             }}
-                                            trackStyle={{ background: 'linear-gradient(90deg, #fa8c16, #fadb14)' }}
-                                            handleStyle={{ 
-                                                borderColor: '#fa8c16',
-                                                boxShadow: '0 2px 8px rgba(250, 140, 22, 0.3)'
-                                            }}
                                         />
-                                        <div style={{ 
-                                            display: 'flex', 
-                                            justifyContent: 'space-between', 
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
                                             fontSize: '12px',
-                                            marginTop: '8px',
-                                            color: '#666'
+                                            marginTop: 'var(--space-xs)',
+                                            color: 'var(--text-secondary)'
                                         }}>
                                             <Tag color="orange">{formatRating(searchParams.minRating)}</Tag>
                                             <Tag color="gold">{formatRating(searchParams.maxRating)}</Tag>
@@ -372,93 +348,86 @@ const AdvancedSearch = ({
 
                             {/* Sort Options */}
                             <Col xs={24} sm={12} md={6}>
-                                <div style={{ marginBottom: '16px' }}>
-                                    <Text strong style={{ fontSize: '14px', color: '#722ed1' }}>
-                                        📊 Sắp xếp
+                                <div style={{ marginBottom: 'var(--space-md)' }}>
+                                    <Text strong style={{ fontSize: '14px', color: 'var(--text-color)' }}>
+                                        Sắp xếp
                                     </Text>
                                     <Select
-                                        style={{ width: '100%', marginTop: '8px' }}
+                                        style={{ width: '100%', marginTop: 'var(--space-xs)' }}
                                         value={searchParams.sortBy}
                                         onChange={(value) => handleFilterChange('sortBy', value)}
                                         size="large"
                                     >
-                                        <Option value="createdAt">🆕 Mới nhất</Option>
-                                        <Option value="price">💰 Giá</Option>
-                                        <Option value="rating">⭐ Đánh giá</Option>
-                                        <Option value="viewCount">👀 Lượt xem</Option>
-                                        <Option value="name">🔤 Tên A-Z</Option>
+                                        <Option value="createdAt">Mới nhất</Option>
+                                        <Option value="price">Giá</Option>
+                                        <Option value="rating">Đánh giá</Option>
+                                        <Option value="name">Tên A-Z</Option>
                                     </Select>
                                 </div>
                             </Col>
                         </Row>
 
-                        <Divider style={{ margin: '24px 0', borderColor: '#e6f7ff' }} />
+                        <Divider style={{ margin: 'var(--space-lg) 0' }} />
 
-                        <Row gutter={[24, 24]}>
+                        <Row gutter={[16, 16]}>
                             {/* Special Filters */}
                             <Col xs={24} sm={8} md={6}>
-                                <div style={{ 
-                                    background: '#fff2e8',
-                                    padding: '16px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #ffd591'
+                                <div style={{
+                                    background: 'white',
+                                    padding: 'var(--space-md)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--border-light)'
                                 }}>
                                     <Space direction="vertical" style={{ width: '100%' }}>
-                                        <Text strong style={{ color: '#d4380d' }}>
-                                            <FireOutlined style={{ marginRight: '8px' }} />
-                                            Chỉ sản phẩm khuyến mãi
+                                        <Text strong style={{ color: 'var(--text-color)' }}>
+                                            <FireOutlined style={{ marginRight: 'var(--space-xs)' }} />
+                                            Sản phẩm khuyến mãi
                                         </Text>
                                         <Switch
                                             checked={searchParams.isOnSale === true}
-                                            onChange={(checked) => 
+                                            onChange={(checked) =>
                                                 handleFilterChange('isOnSale', checked ? true : null)
                                             }
-                                            style={{ 
-                                                background: searchParams.isOnSale ? '#ff4d4f' : undefined
-                                            }}
                                         />
                                     </Space>
                                 </div>
                             </Col>
 
                             <Col xs={24} sm={8} md={6}>
-                                <div style={{ 
-                                    background: '#f6ffed',
-                                    padding: '16px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #b7eb8f'
+                                <div style={{
+                                    background: 'white',
+                                    padding: 'var(--space-md)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--border-light)'
                                 }}>
                                     <Space direction="vertical" style={{ width: '100%' }}>
-                                        <Text strong style={{ color: '#389e0d' }}>
-                                            <CrownOutlined style={{ marginRight: '8px' }} />
-                                            Chỉ sản phẩm nổi bật
+                                        <Text strong style={{ color: 'var(--text-color)' }}>
+                                            <CrownOutlined style={{ marginRight: 'var(--space-xs)' }} />
+                                            Sản phẩm nổi bật
                                         </Text>
                                         <Switch
                                             checked={searchParams.isFeatured === true}
-                                            onChange={(checked) => 
+                                            onChange={(checked) =>
                                                 handleFilterChange('isFeatured', checked ? true : null)
                                             }
-                                            style={{ 
-                                                background: searchParams.isFeatured ? '#52c41a' : undefined
-                                            }}
                                         />
                                     </Space>
                                 </div>
                             </Col>
 
                             <Col xs={24} sm={8} md={6}>
-                                <div style={{ marginBottom: '16px' }}>
-                                    <Text strong style={{ fontSize: '14px', color: '#1890ff' }}>
-                                        🔄 Thứ tự
+                                <div style={{ marginBottom: 'var(--space-md)' }}>
+                                    <Text strong style={{ fontSize: '14px', color: 'var(--text-color)' }}>
+                                        Thứ tự
                                     </Text>
                                     <Select
-                                        style={{ width: '100%', marginTop: '8px' }}
+                                        style={{ width: '100%', marginTop: 'var(--space-xs)' }}
                                         value={searchParams.sortOrder}
                                         onChange={(value) => handleFilterChange('sortOrder', value)}
                                         size="large"
                                     >
-                                        <Option value="desc">📉 Giảm dần</Option>
-                                        <Option value="asc">📈 Tăng dần</Option>
+                                        <Option value="desc">Giảm dần</Option>
+                                        <Option value="asc">Tăng dần</Option>
                                     </Select>
                                 </div>
                             </Col>
@@ -467,18 +436,13 @@ const AdvancedSearch = ({
                                 <Button
                                     icon={<ClearOutlined />}
                                     onClick={handleClearFilters}
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '48px',
-                                        borderRadius: '8px',
-                                        background: 'linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%)',
-                                        border: 'none',
-                                        color: 'white',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold'
+                                    style={{
+                                        width: '100%',
+                                        height: '40px',
+                                        borderRadius: 'var(--radius-sm)'
                                     }}
                                 >
-                                    🗑️ Xóa bộ lọc
+                                    Xóa bộ lọc
                                 </Button>
                             </Col>
                         </Row>

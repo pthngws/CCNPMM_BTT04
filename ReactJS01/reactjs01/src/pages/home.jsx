@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Button, Spin, Alert, Space } from 'antd';
+import { Card, Row, Col, Typography, Button, Spin, Alert, Space, Avatar } from 'antd';
 import { 
     UserOutlined, 
     MailOutlined, 
-    HomeOutlined, 
     AppstoreOutlined,
     ShoppingOutlined,
-    StarOutlined
+    StarOutlined,
+    ArrowRightOutlined
 } from '@ant-design/icons';
 import { AuthContext } from '../components/context/auth.context';
 import { useNavigate } from 'react-router-dom';
@@ -37,13 +37,13 @@ const HomePage = () => {
             // Fetch categories
             const categoriesResponse = await getAllCategoriesApi();
             if (categoriesResponse && categoriesResponse.EC === 0) {
-                setCategories(categoriesResponse.DT?.slice(0, 4) || []); // Show only first 4 categories
+                setCategories(categoriesResponse.DT?.slice(0, 4) || []);
             }
 
             // Fetch featured products
             const productsResponse = await getAllProductsApi(1, 8);
             if (productsResponse && productsResponse.EC === 0) {
-                setFeaturedProducts(productsResponse.DT?.products?.slice(0, 8) || []); // Show only first 8 products
+                setFeaturedProducts(productsResponse.DT?.products?.slice(0, 8) || []);
             }
         } catch (err) {
             console.error('Error fetching home data:', err);
@@ -58,104 +58,177 @@ const HomePage = () => {
     };
 
     const handleAddToCart = (product) => {
-        // TODO: Implement add to cart functionality
         console.log('Add to cart:', product);
     };
 
     if (loading) {
         return (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
+            <div className="loading-container">
                 <Spin size="large" />
-                <div style={{ marginTop: '20px' }}>Đang tải dữ liệu...</div>
+                <Text type="secondary">Đang tải dữ liệu...</Text>
             </div>
         );
     }
 
     if (error) {
         return (
+            <div className="error-container">
             <Alert
                 message="Lỗi tải dữ liệu"
                 description={error}
                 type="error"
                 showIcon
-                style={{ margin: '20px' }}
+                    style={{ maxWidth: '500px' }}
             />
+            </div>
         );
     }
 
     return (
-        <div style={{ padding: '20px' }}>
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                {/* Welcome Section */}
-                <Row justify="center">
-                    <Col xs={24} md={16} lg={12}>
-                        <Card>
-                            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                                <HomeOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
-                                <Title level={2}>Chào mừng đến với cửa hàng của chúng tôi</Title>
-                            </div>
-                            
-                            {auth.isAuthenticated ? (
-                                <div>
-                                    <Card 
-                                        title="Thông tin người dùng" 
-                                        style={{ marginBottom: '20px' }}
-                                        extra={<Button type="primary" onClick={() => navigate('/user')}>Xem người dùng</Button>}
-                                    >
-                                        <Row gutter={16}>
-                                            <Col span={12}>
-                                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                                    <UserOutlined style={{ marginRight: '8px' }} />
-                                                    <Text strong>Tên: </Text>
-                                                    <Text style={{ marginLeft: '8px' }}>{auth.user.name}</Text>
-                                                </div>
-                                            </Col>
-                                            <Col span={12}>
-                                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                                    <MailOutlined style={{ marginRight: '8px' }} />
-                                                    <Text strong>Email: </Text>
-                                                    <Text style={{ marginLeft: '8px' }}>{auth.user.email}</Text>
-                                                </div>
+        <div style={{ 
+            minHeight: '100vh',
+            background: 'var(--background-light)'
+        }}>
+            {/* Hero Section */}
+            <div style={{
+                background: 'white',
+                padding: 'var(--space-2xl) 0',
+                marginBottom: 'var(--space-xl)',
+                borderBottom: '1px solid var(--border-light)'
+            }}>
+                <div className="container">
+                    <Row justify="center" align="middle">
+                        <Col xs={24} md={16} lg={12} style={{ textAlign: 'center' }}>
+                            <Title level={1} style={{ 
+                                color: 'var(--text-color)', 
+                                marginBottom: 'var(--space-md)',
+                                fontSize: '24px',
+                                fontWeight: '600'
+                            }}>
+                                Chào mừng đến với ShopApp
+                            </Title>
+                            <Text style={{ 
+                                color: 'var(--text-secondary)',
+                                fontSize: '16px',
+                                display: 'block',
+                                marginBottom: 'var(--space-lg)',
+                                lineHeight: '1.5'
+                            }}>
+                                Khám phá những sản phẩm chất lượng cao với giá cả hợp lý
+                            </Text>
+                            <Space size="large">
+                                <Button 
+                                    type="primary" 
+                                    size="large"
+                                    onClick={() => navigate('/products')}
+                                    style={{
+                                        height: '40px',
+                                        padding: '0 var(--space-lg)'
+                                    }}
+                                >
+                                    Xem sản phẩm
+                                    <ArrowRightOutlined style={{ marginLeft: 'var(--space-xs)' }} />
+                                </Button>
+                                <Button 
+                                    size="large"
+                                    onClick={() => navigate('/categories')}
+                                    style={{
+                                        height: '40px',
+                                        padding: '0 var(--space-lg)'
+                                    }}
+                                >
+                                    Danh mục
+                                </Button>
+                            </Space>
                                             </Col>
                                         </Row>
-                                    </Card>
-                                    
-                                    <div style={{ textAlign: 'center' }}>
-                                        <Text type="secondary">
-                                            Bạn đã đăng nhập thành công. Bây giờ bạn có thể truy cập tất cả tính năng của ứng dụng.
-                                        </Text>
+                </div>
+            </div>
+
+            <div className="container">
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    {/* User Welcome Section */}
+                    {auth.isAuthenticated && (
+                        <Card style={{
+                            borderRadius: 'var(--radius-md)',
+                            boxShadow: 'var(--shadow-sm)',
+                            border: '1px solid var(--border-light)',
+                            background: 'white',
+                            marginBottom: 'var(--space-lg)'
+                        }}>
+                            <Row align="middle" gutter={24}>
+                                <Col xs={24} md={16}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                                        <Avatar 
+                                            size={48} 
+                                            style={{ 
+                                                background: 'var(--primary-color)',
+                                                fontSize: '18px',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {auth.user.name?.charAt(0)?.toUpperCase()}
+                                        </Avatar>
+                                        <div>
+                                            <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>
+                                                Xin chào, {auth.user.name}!
+                                            </Title>
+                                            <Text type="secondary" style={{ fontSize: '14px' }}>
+                                                {auth.user.email}
+                                            </Text>
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div style={{ textAlign: 'center' }}>
-                                    <Text type="secondary" style={{ fontSize: '16px', marginBottom: '20px', display: 'block' }}>
-                                        Vui lòng đăng nhập để truy cập các tính năng của ứng dụng
-                                    </Text>
-                                    <Button type="primary" size="large" onClick={() => navigate('/login')}>
-                                        Đăng nhập
+                                </Col>
+                                <Col xs={24} md={8} style={{ textAlign: 'right' }}>
+                                    <Button 
+                                        type="primary" 
+                                        size="large"
+                                        onClick={() => navigate('/user')}
+                                        style={{
+                                            height: '40px',
+                                            padding: '0 var(--space-lg)'
+                                        }}
+                                    >
+                                        Quản lý tài khoản
                                     </Button>
-                                    <Button size="large" style={{ marginLeft: '10px' }} onClick={() => navigate('/register')}>
-                                        Đăng ký
-                                    </Button>
-                                </div>
-                            )}
+                                </Col>
+                            </Row>
                         </Card>
-                    </Col>
-                </Row>
+                    )}
 
                 {/* Categories Section */}
                 {categories.length > 0 && (
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <Title level={3} style={{ margin: 0 }}>
-                                <AppstoreOutlined /> Danh mục sản phẩm
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            marginBottom: 'var(--space-lg)',
+                            flexWrap: 'wrap',
+                            gap: 'var(--space-md)'
+                        }}>
+                            <Title level={2} style={{ margin: 0, color: 'var(--text-color)' }}>
+                                Danh mục sản phẩm
                             </Title>
-                            <Button type="link" onClick={() => navigate('/categories')}>
+                            <Button 
+                                type="link" 
+                                onClick={() => navigate('/categories')}
+                                style={{
+                                    color: 'var(--primary-color)',
+                                    fontWeight: '500',
+                                    padding: 'var(--space-xs) var(--space-md)',
+                                    height: 'auto',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 'var(--space-xs)'
+                                }}
+                            >
                                 Xem tất cả
+                                <ArrowRightOutlined />
                             </Button>
                         </div>
                         
-                        <Row gutter={[24, 24]}>
+                        <Row gutter={[16, 16]}>
                             {categories.map((category) => (
                                 <Col key={category._id} xs={24} sm={12} md={6} lg={6} xl={6}>
                                     <CategoryCard category={category} />
@@ -168,16 +241,36 @@ const HomePage = () => {
                 {/* Featured Products Section */}
                 {featuredProducts.length > 0 && (
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <Title level={3} style={{ margin: 0 }}>
-                                <StarOutlined /> Sản phẩm nổi bật
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            marginBottom: 'var(--space-lg)',
+                            flexWrap: 'wrap',
+                            gap: 'var(--space-md)'
+                        }}>
+                            <Title level={2} style={{ margin: 0, color: 'var(--text-color)' }}>
+                                Sản phẩm nổi bật
                             </Title>
-                            <Button type="link" onClick={() => navigate('/products')}>
+                            <Button 
+                                type="link" 
+                                onClick={() => navigate('/products')}
+                                style={{
+                                    color: 'var(--primary-color)',
+                                    fontWeight: '500',
+                                    padding: 'var(--space-xs) var(--space-md)',
+                                    height: 'auto',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 'var(--space-xs)'
+                                }}
+                            >
                                 Xem tất cả
+                                <ArrowRightOutlined />
                             </Button>
                         </div>
                         
-                        <Row gutter={[24, 24]}>
+                        <Row gutter={[16, 16]}>
                             {featuredProducts.map((product) => (
                                 <Col key={product._id} xs={24} sm={12} md={8} lg={6} xl={6}>
                                     <ProductCard
@@ -190,7 +283,56 @@ const HomePage = () => {
                         </Row>
                     </div>
                 )}
+
+                    {/* Call to Action */}
+                    {!auth.isAuthenticated && (
+                        <Card style={{
+                            borderRadius: 'var(--radius-md)',
+                            boxShadow: 'var(--shadow-sm)',
+                            border: '1px solid var(--border-light)',
+                            background: 'white',
+                            textAlign: 'center',
+                            padding: 'var(--space-xl)',
+                            marginTop: 'var(--space-lg)'
+                        }}>
+                            <Title level={3} style={{ color: 'var(--text-color)', marginBottom: 'var(--space-md)' }}>
+                                Bắt đầu mua sắm ngay hôm nay
+                            </Title>
+                            <Text style={{ 
+                                color: 'var(--text-secondary)',
+                                fontSize: '16px',
+                                display: 'block',
+                                marginBottom: 'var(--space-lg)'
+                            }}>
+                                Đăng ký tài khoản để trải nghiệm đầy đủ các tính năng
+                            </Text>
+                            <Space size="large">
+                                <Button 
+                                    type="primary" 
+                                    size="large"
+                                    onClick={() => navigate('/login')}
+                                    style={{
+                                        height: '40px',
+                                        padding: '0 var(--space-lg)'
+                                    }}
+                                >
+                                    Đăng nhập
+                                </Button>
+                                <Button 
+                                    size="large"
+                                    onClick={() => navigate('/register')}
+                                    style={{
+                                        height: '40px',
+                                        padding: '0 var(--space-lg)'
+                                    }}
+                                >
+                                    Đăng ký
+                                </Button>
+                            </Space>
+                        </Card>
+                    )}
             </Space>
+            </div>
         </div>
     );
 };

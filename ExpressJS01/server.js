@@ -3,7 +3,7 @@ const express = require('express');
 const configViewEngine = require('./src/config/viewEngine');
 const apiRoutes = require('./src/routes/api');
 const webRoutes = require('./src/routes/web');
-// const connection = require('./src/config/database'); // Comment out for static data
+const connection = require('./src/config/database');
 const { initializeIndex, checkConnection } = require('./src/config/elasticsearch');
 const cors = require('cors');
 
@@ -21,24 +21,27 @@ app.use('/v1/api/', apiRoutes);
 
 (async () => {
     try {
-        // Không cần kết nối MongoDB khi sử dụng static data
-        // await connection();
+        // Kết nối MongoDB
+        await connection();
+        console.log('✅ Connected to MongoDB');
+        
+        // Data đã có trong database, không cần seed
         
         // Kiểm tra và khởi tạo Elasticsearch
         const elasticsearchConnected = await checkConnection();
         if (elasticsearchConnected) {
             await initializeIndex();
             
-            // Reindex products từ static data
-            const { reindexAllProductsFromStaticData } = require('./src/services/staticDataService');
-            await reindexAllProductsFromStaticData();
+            // Reindex products từ MongoDB
+            const { reindexAllProducts } = require('./src/services/elasticsearchService');
+            await reindexAllProducts();
         } else {
-            console.log('⚠️  Elasticsearch not available, using static data fallback');
+            console.log('⚠️  Elasticsearch not available, using MongoDB only');
         }
         
         app.listen(port, () => {
             console.log(`Backend Nodejs App listening on port ${port}`);
-            console.log('📊 Using static data instead of database');
+            console.log('📊 Data stored in MongoDB, indexed in Elasticsearch');
         });
     } catch (error) {
         console.log('>>> Error starting server: ', error);
