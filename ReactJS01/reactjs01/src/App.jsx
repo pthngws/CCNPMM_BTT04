@@ -3,6 +3,7 @@ import { Layout, Spin } from 'antd';
 import AppHeader from './components/layout/header.jsx';
 import { AuthContext } from './components/context/auth.context';
 import { Outlet } from 'react-router-dom';
+import './styles/search.css';
 
 const { Header, Content } = Layout;
 

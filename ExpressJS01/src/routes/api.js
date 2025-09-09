@@ -1,7 +1,7 @@
 const express = require('express');
 const { createUser, handleLogin, getUser, getAccount } = require('../controllers/userController');
 const { getAllCategories, getCategoryById, createCategory } = require('../controllers/categoryController');
-const { getProductsByCategory, getAllProducts, getProductById, createProduct } = require('../controllers/productController');
+const { getProductsByCategory, getAllProducts, advancedSearchProducts, getSearchSuggestions, getProductById, createProduct } = require('../controllers/productController');
 const auth = require('../middleware/auth');
 const publicAuth = require('../middleware/publicAuth');
 const delay = require('../middleware/delay');
@@ -12,6 +12,8 @@ const routerAPI = express.Router();
 routerAPI.get('/categories', getAllCategories);
 routerAPI.get('/categories/:id', getCategoryById);
 routerAPI.get('/products', getAllProducts);
+routerAPI.get('/products/search', advancedSearchProducts);
+routerAPI.get('/products/suggestions', getSearchSuggestions);
 routerAPI.get('/products/:id', getProductById);
 routerAPI.get('/categories/:categoryId/products', getProductsByCategory);
 

@@ -45,6 +45,20 @@ const getProductsByCategoryApi = (categoryId, page = 1, limit = 12) => {
     });
 }
 
+// Advanced search API với Elasticsearch
+const advancedSearchProductsApi = (searchParams) => {
+    return axios.get(`${config.API_ENDPOINTS.PRODUCTS}/search`, {
+        params: searchParams
+    });
+}
+
+// Get search suggestions API
+const getSearchSuggestionsApi = (query, limit = 10) => {
+    return axios.get(`${config.API_ENDPOINTS.PRODUCTS}/suggestions`, {
+        params: { q: query, limit }
+    });
+}
+
 export {
     createUserApi, 
     loginApi, 
@@ -53,5 +67,7 @@ export {
     getCategoryByIdApi,
     getAllProductsApi,
     getProductByIdApi,
-    getProductsByCategoryApi
+    getProductsByCategoryApi,
+    advancedSearchProductsApi,
+    getSearchSuggestionsApi
 }

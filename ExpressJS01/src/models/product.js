@@ -40,12 +40,51 @@ const productSchema = new mongoose.Schema({
     reviewCount: {
         type: Number,
         default: 0
+    },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
+    discount: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    isOnSale: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
 });
 
+// Virtual field để tính discount percentage
+productSchema.virtual('discountPercentage').get(function() {
+    if (this.originalPrice && this.originalPrice > this.price) {
+        return Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+    }
+    return 0;
+});
+
+// Middleware để tự động cập nhật discount và isOnSale
+productSchema.pre('save', function(next) {
+    if (this.originalPrice && this.originalPrice > this.price) {
+        this.discount = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+        this.isOnSale = true;
+    } else {
+        this.discount = 0;
+        this.isOnSale = false;
+    }
+    next();
+});
+
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
+
 

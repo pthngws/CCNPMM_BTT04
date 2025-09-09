@@ -1,5 +1,11 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const { 
+    searchProducts, 
+    indexProduct, 
+    deleteProductFromIndex,
+    bulkIndexProducts 
+} = require('./elasticsearchService');
 
 const getProductsByCategoryService = async (categoryId, page = 1, limit = 12) => {
     try {
@@ -88,6 +94,27 @@ const getAllProductsService = async (page = 1, limit = 12, search = '') => {
     }
 };
 
+// Advanced search với Elasticsearch
+const advancedSearchProductsService = async (searchParams) => {
+    try {
+        return await searchProducts(searchParams);
+    } catch (error) {
+        console.log('Error in advancedSearchProductsService:', error);
+        return { EC: -1, EM: 'Failed to search products' };
+    }
+};
+
+// Get search suggestions
+const getSearchSuggestionsService = async (query, limit = 10) => {
+    try {
+        const { getSearchSuggestions } = require('./elasticsearchService');
+        return await getSearchSuggestions(query, limit);
+    } catch (error) {
+        console.log('Error in getSearchSuggestionsService:', error);
+        return { EC: -1, EM: 'Failed to get suggestions', DT: [] };
+    }
+};
+
 const getProductByIdService = async (productId) => {
     try {
         const product = await Product.findById(productId).populate('category', 'name');
@@ -103,7 +130,7 @@ const getProductByIdService = async (productId) => {
 
 const createProductService = async (productData) => {
     try {
-        const { name, description, price, originalPrice, images, category, stock, tags } = productData;
+        const { name, description, price, originalPrice, images, category, stock, tags, isFeatured } = productData;
 
         // Kiểm tra category có tồn tại không
         const categoryExists = await Category.findById(category);
@@ -119,10 +146,14 @@ const createProductService = async (productData) => {
             images,
             category,
             stock,
-            tags
+            tags,
+            isFeatured: isFeatured || false
         });
 
         await product.populate('category', 'name');
+
+        // Index product vào Elasticsearch
+        await indexProduct(product);
 
         return { EC: 0, EM: 'Create product successfully', DT: product };
     } catch (error) {
@@ -134,7 +165,10 @@ const createProductService = async (productData) => {
 module.exports = {
     getProductsByCategoryService,
     getAllProductsService,
+    advancedSearchProductsService,
+    getSearchSuggestionsService,
     getProductByIdService,
     createProductService
 };
+
 

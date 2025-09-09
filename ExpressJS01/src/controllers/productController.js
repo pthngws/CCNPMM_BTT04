@@ -1,9 +1,11 @@
 const { 
     getProductsByCategoryService, 
     getAllProductsService, 
+    advancedSearchProductsService,
+    getSearchSuggestionsService,
     getProductByIdService, 
     createProductService 
-} = require('../services/productService');
+} = require('../services/staticDataService');
 
 const getProductsByCategory = async (req, res) => {
     const { categoryId } = req.params;
@@ -32,10 +34,65 @@ const createProduct = async (req, res) => {
     return res.status(200).json(data);
 };
 
+// Advanced search với Elasticsearch
+const advancedSearchProducts = async (req, res) => {
+    const {
+        query = '',
+        category = '',
+        minPrice = 0,
+        maxPrice = Number.MAX_SAFE_INTEGER,
+        minRating = 0,
+        maxRating = 5,
+        isOnSale = null,
+        isFeatured = null,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        page = 1,
+        limit = 12
+    } = req.query;
+
+    const searchParams = {
+        query,
+        category,
+        minPrice: parseFloat(minPrice),
+        maxPrice: parseFloat(maxPrice),
+        minRating: parseFloat(minRating),
+        maxRating: parseFloat(maxRating),
+        isOnSale: isOnSale === 'true' ? true : isOnSale === 'false' ? false : null,
+        isFeatured: isFeatured === 'true' ? true : isFeatured === 'false' ? false : null,
+        sortBy,
+        sortOrder,
+        page: parseInt(page),
+        limit: parseInt(limit)
+    };
+
+    const data = await advancedSearchProductsService(searchParams);
+    return res.status(200).json(data);
+};
+
+// Get search suggestions
+const getSearchSuggestions = async (req, res) => {
+    const { q: query, limit = 10 } = req.query;
+    
+    if (!query || query.trim().length < 2) {
+        return res.status(200).json({
+            EC: 0,
+            EM: 'Query too short',
+            DT: []
+        });
+    }
+
+    const data = await getSearchSuggestionsService(query.trim(), parseInt(limit));
+    return res.status(200).json(data);
+};
+
 module.exports = {
     getProductsByCategory,
     getAllProducts,
+    advancedSearchProducts,
+    getSearchSuggestions,
     getProductById,
     createProduct
 };
+
 

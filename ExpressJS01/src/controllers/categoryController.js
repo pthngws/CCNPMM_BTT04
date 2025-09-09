@@ -2,7 +2,7 @@ const {
     getAllCategoriesService, 
     getCategoryByIdService, 
     createCategoryService 
-} = require('../services/categoryService');
+} = require('../services/staticDataService');
 
 const getAllCategories = async (req, res) => {
     const data = await getAllCategoriesService();
@@ -26,4 +26,5 @@ module.exports = {
     getCategoryById,
     createCategory
 };
+
 

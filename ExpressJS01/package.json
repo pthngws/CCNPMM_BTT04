@@ -5,12 +5,17 @@
   "scripts": {
     "dev": "nodemon ./server.js",
     "start": "nodemon ./server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "reindex": "node ./src/scripts/reindexProducts.js",
+    "reindex-static": "node ./src/scripts/reindexStaticData.js",
+    "test-search": "node ./src/scripts/testSearch.js",
+    "quick-test": "node ./src/scripts/quickTest.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.19.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
