@@ -16,25 +16,40 @@ const client = new Client({
 // Tên index cho products
 const PRODUCTS_INDEX = 'products';
 
-// Mapping cho products index
+// Mapping cho products index với đầy đủ tính năng tìm kiếm
 const productsMapping = {
     mappings: {
         properties: {
             name: {
                 type: 'text',
-                analyzer: 'standard',
+                analyzer: 'vietnamese_analyzer',
                 fields: {
                     keyword: {
                         type: 'keyword'
                     },
                     suggest: {
-                        type: 'completion'
+                        type: 'completion',
+                        analyzer: 'simple',
+                        search_analyzer: 'simple',
+                        preserve_separators: true,
+                        preserve_position_increments: true,
+                        max_input_length: 50
+                    },
+                    autocomplete: {
+                        type: 'text',
+                        analyzer: 'autocomplete_analyzer',
+                        search_analyzer: 'autocomplete_search_analyzer'
                     }
                 }
             },
             description: {
                 type: 'text',
-                analyzer: 'standard'
+                analyzer: 'vietnamese_analyzer',
+                fields: {
+                    keyword: {
+                        type: 'keyword'
+                    }
+                }
             },
             price: {
                 type: 'float'
@@ -50,7 +65,17 @@ const productsMapping = {
             },
             categoryName: {
                 type: 'text',
-                analyzer: 'standard'
+                analyzer: 'vietnamese_analyzer',
+                fields: {
+                    keyword: {
+                        type: 'keyword'
+                    },
+                    suggest: {
+                        type: 'completion',
+                        analyzer: 'simple',
+                        search_analyzer: 'simple'
+                    }
+                }
             },
             stock: {
                 type: 'integer'
@@ -65,9 +90,22 @@ const productsMapping = {
                 type: 'integer'
             },
             tags: {
-                type: 'keyword'
+                type: 'keyword',
+                fields: {
+                    suggest: {
+                        type: 'completion',
+                        analyzer: 'simple',
+                        search_analyzer: 'simple'
+                    }
+                }
             },
             isActive: {
+                type: 'boolean'
+            },
+            isFeatured: {
+                type: 'boolean'
+            },
+            isOnSale: {
                 type: 'boolean'
             },
             createdAt: {
@@ -79,12 +117,38 @@ const productsMapping = {
         }
     },
     settings: {
+        number_of_shards: 1,
+        number_of_replicas: 0,
         analysis: {
             analyzer: {
                 vietnamese_analyzer: {
                     type: 'custom',
                     tokenizer: 'standard',
+                    filter: ['lowercase', 'asciifolding', 'vietnamese_stop']
+                },
+                autocomplete_analyzer: {
+                    type: 'custom',
+                    tokenizer: 'autocomplete_tokenizer',
                     filter: ['lowercase', 'asciifolding']
+                },
+                autocomplete_search_analyzer: {
+                    type: 'custom',
+                    tokenizer: 'keyword',
+                    filter: ['lowercase', 'asciifolding']
+                }
+            },
+            tokenizer: {
+                autocomplete_tokenizer: {
+                    type: 'edge_ngram',
+                    min_gram: 1,
+                    max_gram: 20,
+                    token_chars: ['letter', 'digit']
+                }
+            },
+            filter: {
+                vietnamese_stop: {
+                    type: 'stop',
+                    stopwords: ['và', 'của', 'cho', 'với', 'từ', 'trong', 'có', 'được', 'là', 'một', 'các', 'như', 'để', 'này', 'đó', 'khi', 'nếu', 'vì', 'sau', 'trước', 'trên', 'dưới', 'giữa', 'ngoài', 'trong', 'ngoài', 'về', 'theo', 'qua', 'bằng', 'bởi', 'do', 'tại', 'ở', 'vào', 'ra', 'lên', 'xuống', 'qua', 'lại', 'về', 'đến', 'từ', 'của', 'cho', 'với', 'và', 'hoặc', 'nhưng', 'mà', 'nên', 'để', 'để', 'mà', 'nếu', 'khi', 'vì', 'sau', 'trước', 'trên', 'dưới', 'giữa', 'ngoài', 'trong', 'ngoài', 'về', 'theo', 'qua', 'bằng', 'bởi', 'do', 'tại', 'ở', 'vào', 'ra', 'lên', 'xuống', 'qua', 'lại', 'về', 'đến', 'từ']
                 }
             }
         }

@@ -1,7 +1,18 @@
 const express = require('express');
 const { createUser, handleLogin, getUser, getAccount } = require('../controllers/userController');
 const { getAllCategories, getCategoryById, createCategory } = require('../controllers/categoryController');
-const { getProductsByCategory, getAllProducts, advancedSearchProducts, getSearchSuggestions, getProductById, createProduct } = require('../controllers/productController');
+const { 
+    getProductsByCategory, 
+    getAllProducts, 
+    advancedSearchProducts, 
+    getSearchSuggestions, 
+    getProductById, 
+    createProduct,
+    getSimilarProducts,
+    getTrendingProducts,
+    getSearchFacets,
+    searchWithTypoTolerance
+} = require('../controllers/productController');
 const auth = require('../middleware/auth');
 const publicAuth = require('../middleware/publicAuth');
 const delay = require('../middleware/delay');
@@ -14,6 +25,10 @@ routerAPI.get('/categories/:id', getCategoryById);
 routerAPI.get('/products', getAllProducts);
 routerAPI.get('/products/search', advancedSearchProducts);
 routerAPI.get('/products/suggestions', getSearchSuggestions);
+routerAPI.get('/products/similar/:id', getSimilarProducts);
+routerAPI.get('/products/trending', getTrendingProducts);
+routerAPI.get('/products/facets', getSearchFacets);
+routerAPI.get('/products/search-typo', searchWithTypoTolerance);
 routerAPI.get('/products/:id', getProductById);
 routerAPI.get('/categories/:categoryId/products', getProductsByCategory);
 

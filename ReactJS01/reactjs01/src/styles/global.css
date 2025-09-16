@@ -9,20 +9,28 @@
 
 /* Root Variables */
 :root {
-  /* Simple Colors */
-  --primary-color: #1890ff;
-  --primary-hover: #40a9ff;
-  --primary-light: #e6f7ff;
-  --text-color: #262626;
-  --text-secondary: #8c8c8c;
-  --text-light: #bfbfbf;
-  --border-color: #d9d9d9;
-  --border-light: #f0f0f0;
-  --background: #ffffff;
-  --background-light: #fafafa;
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #ff4d4f;
+/* FPT Color Palette */
+--primary-color: #d32f2f; /* FPT Red */
+--primary-hover: #b71c1c; /* Darker Red */
+--primary-light: #ffebee; /* Light Red Background */
+--primary-dark: #8b0000; /* Very Dark Red */
+--secondary-color: #000000; /* FPT Black */
+--secondary-light: #424242; /* Dark Gray */
+--accent-color: #ffffff; /* FPT White */
+--accent-light: #f5f5f5; /* Light Gray */
+--text-color: #212121; /* Dark Text */
+--text-secondary: #757575; /* Medium Gray */
+--text-light: #9e9e9e; /* Light Gray */
+--text-white: #ffffff; /* White Text */
+--border-color: #e0e0e0; /* Light Border */
+--border-light: #f5f5f5; /* Very Light Border */
+--background: #ffffff; /* White Background */
+--background-light: #fafafa; /* Light Background */
+--background-dark: #000000; /* Black Background */
+--success-color: #4caf50; /* Green */
+--warning-color: #ff9800; /* Orange */
+--error-color: #f44336; /* Red */
+--info-color: #2196f3; /* Blue */
   
   /* Typography */
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
@@ -35,25 +43,33 @@
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
   
-  /* Simple Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  
-  /* Simple Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  
-  /* Simple Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  /* Simple Transitions */
-  --transition: all 0.2s ease;
+/* FPT Spacing System */
+--space-xs: 4px;
+--space-sm: 8px;
+--space-md: 16px;
+--space-lg: 24px;
+--space-xl: 32px;
+--space-2xl: 48px;
+--space-3xl: 64px;
+--space-4xl: 96px;
+
+/* FPT Border Radius */
+--radius-sm: 2px;
+--radius-md: 4px;
+--radius-lg: 8px;
+--radius-xl: 12px;
+--radius-2xl: 16px;
+
+/* FPT Shadows */
+--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+--shadow-md: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+--shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+--shadow-xl: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+
+/* FPT Transitions */
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+--transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+--transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Base Styles */
@@ -182,4 +198,148 @@ input, textarea, select {
   h1 { font-size: 18px; }
   h2 { font-size: 16px; }
   h3 { font-size: 14px; }
+}
+
+/* FPT Additional Utilities */
+.mb-6 { margin-bottom: var(--space-2xl); }
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-xs); }
+.mt-2 { margin-top: var(--space-sm); }
+.mt-3 { margin-top: var(--space-md); }
+.mt-4 { margin-top: var(--space-lg); }
+.mt-5 { margin-top: var(--space-xl); }
+.mt-6 { margin-top: var(--space-2xl); }
+
+/* FPT Color Utilities */
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--secondary-color); }
+.text-white { color: var(--text-white); }
+.text-muted { color: var(--text-secondary); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-secondary { background-color: var(--secondary-color); }
+.bg-white { background-color: var(--accent-color); }
+.bg-light { background-color: var(--background-light); }
+
+/* FPT Button Styles */
+.btn-fpt {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border: none;
+  color: var(--text-white);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.btn-fpt:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-dark) 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-fpt-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.btn-fpt-outline:hover {
+  background: var(--primary-color);
+  color: var(--text-white);
+  box-shadow: var(--shadow-md);
+}
+
+/* FPT Card Styles */
+.card-fpt {
+  background: var(--accent-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.card-fpt:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-fpt-header {
+  background: var(--primary-color);
+  color: var(--text-white);
+  padding: var(--space-md);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* FPT Input Styles */
+.input-fpt {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  transition: var(--transition);
+  background: var(--accent-color);
+}
+
+.input-fpt:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  outline: none;
+}
+
+/* FPT Badge Styles */
+.badge-fpt {
+  background: var(--primary-color);
+  color: var(--text-white);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-fpt-secondary {
+  background: var(--secondary-color);
+  color: var(--text-white);
+}
+
+.badge-fpt-outline {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+/* Hero Slider Custom Dots */
+.custom-dots li button {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-radius: 50% !important;
+  width: 14px !important;
+  height: 14px !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+.custom-dots li.slick-active button {
+  background: var(--primary-color) !important;
+  width: 40px !important;
+  border-radius: 7px !important;
+  border: 2px solid var(--text-white) !important;
+}
+
+.custom-dots li button:hover {
+  background: rgba(255, 255, 255, 0.7) !important;
 }

@@ -15,20 +15,21 @@ const CategoryCard = ({ category }) => {
     return (
         <Card
             hoverable
-            className="card-hover"
+            className="card-fpt"
             onClick={handleCategoryClick}
             style={{ 
                 cursor: 'pointer',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-2xl)',
                 boxShadow: 'var(--shadow-sm)',
                 border: '1px solid var(--border-light)',
                 overflow: 'hidden',
-                background: 'white',
+                background: 'var(--accent-color)',
                 height: '100%',
-                transition: 'var(--transition)'
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative'
             }}
             bodyStyle={{ 
-                padding: 'var(--space-md)',
+                padding: 'var(--space-xl)',
                 textAlign: 'center'
             }}
             cover={
@@ -36,7 +37,8 @@ const CategoryCard = ({ category }) => {
                     position: 'relative', 
                     overflow: 'hidden',
                     aspectRatio: '16/9',
-                    background: 'var(--background-light)'
+                    background: 'var(--background-light)',
+                    borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0'
                 }}>
                     <Image
                         alt={category.name}
@@ -45,7 +47,11 @@ const CategoryCard = ({ category }) => {
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
-                            transition: 'var(--transition)'
+                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                            borderRadius: 'var(--radius-lg)',
+                            margin: 'var(--space-sm)',
+                            width: 'calc(100% - var(--space-md))',
+                            height: 'calc(100% - var(--space-md))'
                         }}
                         preview={false}
                         onMouseEnter={(e) => {

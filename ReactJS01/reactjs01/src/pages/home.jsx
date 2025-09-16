@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAllCategoriesApi, getAllProductsApi } from '../util/apis';
 import CategoryCard from '../components/common/CategoryCard';
 import ProductCard from '../components/common/ProductCard';
+import HeroSlider from '../components/common/HeroSlider';
 
 const { Title, Text } = Typography;
 
@@ -89,63 +90,10 @@ const HomePage = () => {
             minHeight: '100vh',
             background: 'var(--background-light)'
         }}>
-            {/* Hero Section */}
-            <div style={{
-                background: 'white',
-                padding: 'var(--space-2xl) 0',
-                marginBottom: 'var(--space-xl)',
-                borderBottom: '1px solid var(--border-light)'
-            }}>
-                <div className="container">
-                    <Row justify="center" align="middle">
-                        <Col xs={24} md={16} lg={12} style={{ textAlign: 'center' }}>
-                            <Title level={1} style={{ 
-                                color: 'var(--text-color)', 
-                                marginBottom: 'var(--space-md)',
-                                fontSize: '24px',
-                                fontWeight: '600'
-                            }}>
-                                Chào mừng đến với ShopApp
-                            </Title>
-                            <Text style={{ 
-                                color: 'var(--text-secondary)',
-                                fontSize: '16px',
-                                display: 'block',
-                                marginBottom: 'var(--space-lg)',
-                                lineHeight: '1.5'
-                            }}>
-                                Khám phá những sản phẩm chất lượng cao với giá cả hợp lý
-                            </Text>
-                            <Space size="large">
-                                <Button 
-                                    type="primary" 
-                                    size="large"
-                                    onClick={() => navigate('/products')}
-                                    style={{
-                                        height: '40px',
-                                        padding: '0 var(--space-lg)'
-                                    }}
-                                >
-                                    Xem sản phẩm
-                                    <ArrowRightOutlined style={{ marginLeft: 'var(--space-xs)' }} />
-                                </Button>
-                                <Button 
-                                    size="large"
-                                    onClick={() => navigate('/categories')}
-                                    style={{
-                                        height: '40px',
-                                        padding: '0 var(--space-lg)'
-                                    }}
-                                >
-                                    Danh mục
-                                </Button>
-                            </Space>
-                                            </Col>
-                                        </Row>
-                </div>
-            </div>
+            {/* Hero Slider */}
+            <HeroSlider />
 
-            <div className="container">
+            <div className="container" style={{ padding: '0 var(--space-lg)', marginTop: 'var(--space-2xl)' }}>
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* User Welcome Section */}
                     {auth.isAuthenticated && (
@@ -175,9 +123,9 @@ const HomePage = () => {
                                             </Title>
                                             <Text type="secondary" style={{ fontSize: '14px' }}>
                                                 {auth.user.email}
-                                            </Text>
-                                        </div>
+                                        </Text>
                                     </div>
+                                </div>
                                 </Col>
                                 <Col xs={24} md={8} style={{ textAlign: 'right' }}>
                                     <Button 
@@ -198,29 +146,47 @@ const HomePage = () => {
 
                 {/* Categories Section */}
                 {categories.length > 0 && (
-                    <div>
+                    <div style={{
+                        background: 'var(--accent-color)',
+                        borderRadius: 'var(--radius-2xl)',
+                        padding: 'var(--space-2xl)',
+                        boxShadow: 'var(--shadow-sm)',
+                        border: '1px solid var(--border-light)'
+                    }}>
                         <div style={{ 
                             display: 'flex', 
                             justifyContent: 'space-between', 
                             alignItems: 'center', 
-                            marginBottom: 'var(--space-lg)',
+                            marginBottom: 'var(--space-xl)',
                             flexWrap: 'wrap',
                             gap: 'var(--space-md)'
                         }}>
-                            <Title level={2} style={{ margin: 0, color: 'var(--text-color)' }}>
+                            <Title level={2} style={{ 
+                                margin: 0, 
+                                color: 'var(--text-color)',
+                                fontSize: '28px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}>
                                 Danh mục sản phẩm
                             </Title>
                             <Button 
                                 type="link" 
                                 onClick={() => navigate('/categories')}
+                                className="btn-fpt-outline"
                                 style={{
                                     color: 'var(--primary-color)',
-                                    fontWeight: '500',
-                                    padding: 'var(--space-xs) var(--space-md)',
+                                    fontWeight: '600',
+                                    padding: 'var(--space-sm) var(--space-lg)',
                                     height: 'auto',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 'var(--space-xs)'
+                                    gap: 'var(--space-xs)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    border: '2px solid var(--primary-color)',
+                                    borderRadius: 'var(--radius-md)'
                                 }}
                             >
                                 Xem tất cả
@@ -228,7 +194,7 @@ const HomePage = () => {
                             </Button>
                         </div>
                         
-                        <Row gutter={[16, 16]}>
+                        <Row gutter={[24, 24]}>
                             {categories.map((category) => (
                                 <Col key={category._id} xs={24} sm={12} md={6} lg={6} xl={6}>
                                     <CategoryCard category={category} />
@@ -240,29 +206,47 @@ const HomePage = () => {
 
                 {/* Featured Products Section */}
                 {featuredProducts.length > 0 && (
-                    <div>
+                    <div style={{
+                        background: 'var(--accent-color)',
+                        borderRadius: 'var(--radius-2xl)',
+                        padding: 'var(--space-2xl)',
+                        boxShadow: 'var(--shadow-sm)',
+                        border: '1px solid var(--border-light)'
+                    }}>
                         <div style={{ 
                             display: 'flex', 
                             justifyContent: 'space-between', 
                             alignItems: 'center', 
-                            marginBottom: 'var(--space-lg)',
+                            marginBottom: 'var(--space-xl)',
                             flexWrap: 'wrap',
                             gap: 'var(--space-md)'
                         }}>
-                            <Title level={2} style={{ margin: 0, color: 'var(--text-color)' }}>
+                            <Title level={2} style={{ 
+                                margin: 0, 
+                                color: 'var(--text-color)',
+                                fontSize: '28px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}>
                                 Sản phẩm nổi bật
                             </Title>
                             <Button 
                                 type="link" 
                                 onClick={() => navigate('/products')}
+                                className="btn-fpt-outline"
                                 style={{
                                     color: 'var(--primary-color)',
-                                    fontWeight: '500',
-                                    padding: 'var(--space-xs) var(--space-md)',
+                                    fontWeight: '600',
+                                    padding: 'var(--space-sm) var(--space-lg)',
                                     height: 'auto',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 'var(--space-xs)'
+                                    gap: 'var(--space-xs)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    border: '2px solid var(--primary-color)',
+                                    borderRadius: 'var(--radius-md)'
                                 }}
                             >
                                 Xem tất cả
@@ -270,7 +254,7 @@ const HomePage = () => {
                             </Button>
                         </div>
                         
-                        <Row gutter={[16, 16]}>
+                        <Row gutter={[24, 24]}>
                             {featuredProducts.map((product) => (
                                 <Col key={product._id} xs={24} sm={12} md={8} lg={6} xl={6}>
                                     <ProductCard
@@ -330,7 +314,7 @@ const HomePage = () => {
                                 </Button>
                             </Space>
                         </Card>
-                    )}
+                )}
             </Space>
             </div>
         </div>

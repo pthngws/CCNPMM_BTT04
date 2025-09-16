@@ -23,19 +23,21 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
     return (
         <Card
             hoverable
-            className="card-hover"
+            className="card-fpt"
             style={{
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-2xl)',
                 boxShadow: 'var(--shadow-sm)',
                 border: '1px solid var(--border-light)',
                 overflow: 'hidden',
-                background: 'white',
+                background: 'var(--accent-color)',
                 height: '100%',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative'
             }}
             bodyStyle={{ 
-                padding: 'var(--space-md)',
+                padding: 'var(--space-lg)',
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column'
@@ -45,7 +47,8 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     position: 'relative', 
                     overflow: 'hidden',
                     aspectRatio: '1',
-                    background: 'var(--background-light)'
+                    background: 'var(--background-light)',
+                    borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0'
                 }}>
                     <Image
                         alt={product.name}
@@ -54,7 +57,11 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
-                            transition: 'var(--transition)'
+                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                            borderRadius: 'var(--radius-lg)',
+                            margin: 'var(--space-sm)',
+                            width: 'calc(100% - var(--space-md))',
+                            height: 'calc(100% - var(--space-md))'
                         }}
                         preview={false}
                         onMouseEnter={(e) => {
@@ -78,20 +85,23 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                         {discount > 0 && (
                             <Badge 
                                 count={`-${discount}%`}
+                                className="badge-fpt"
                                 style={{ 
                                     backgroundColor: 'var(--error-color)',
                                     borderRadius: 'var(--radius-sm)',
                                     fontSize: '12px',
-                                    fontWeight: '600'
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
                                 }}
                             />
                         )}
                         {product.isFeatured && (
                             <Tooltip title="Sản phẩm nổi bật">
-                                <div style={{
+                                <div className="badge-fpt" style={{
                                     width: '24px',
                                     height: '24px',
-                                    background: 'rgba(255, 255, 255, 0.9)',
+                                    background: 'var(--primary-color)',
                                     borderRadius: '50%',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -99,7 +109,7 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                                     boxShadow: 'var(--shadow-sm)'
                                 }}>
                                     <CrownOutlined style={{ 
-                                        color: 'var(--warning-color)',
+                                        color: 'var(--text-white)',
                                         fontSize: '12px'
                                     }} />
                                 </div>
@@ -107,10 +117,10 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                         )}
                         {product.isOnSale && (
                             <Tooltip title="Đang khuyến mãi">
-                                <div style={{
+                                <div className="badge-fpt" style={{
                                     width: '24px',
                                     height: '24px',
-                                    background: 'rgba(255, 255, 255, 0.9)',
+                                    background: 'var(--error-color)',
                                     borderRadius: '50%',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -118,7 +128,7 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                                     boxShadow: 'var(--shadow-sm)'
                                 }}>
                                     <FireOutlined style={{ 
-                                        color: 'var(--error-color)',
+                                        color: 'var(--text-white)',
                                         fontSize: '12px'
                                     }} />
                                 </div>
@@ -154,10 +164,19 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     icon={<EyeOutlined />} 
                     onClick={() => onViewDetail(product)}
                     block
+                    className="btn-fpt"
                     style={{
-                        borderRadius: 'var(--radius-sm)',
-                        height: '36px',
-                        fontSize: '14px'
+                        borderRadius: 'var(--radius-md)',
+                        height: '44px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        padding: '0 var(--space-lg)',
+                        background: 'var(--primary-color)',
+                        border: '2px solid var(--primary-color)',
+                        color: 'var(--text-white)',
+                        boxShadow: 'var(--shadow-sm)'
                     }}
                 >
                     Xem chi tiết
@@ -168,13 +187,19 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     onClick={() => onAddToCart(product)}
                     disabled={product.stock === 0}
                     block
+                    className="btn-fpt-outline"
                     style={{
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--border-color)',
-                        background: product.stock === 0 ? 'var(--background-light)' : 'white',
+                        borderRadius: 'var(--radius-md)',
+                        height: '44px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        padding: '0 var(--space-lg)',
+                        border: '2px solid var(--primary-color)',
+                        background: product.stock === 0 ? 'var(--background-light)' : 'transparent',
                         color: product.stock === 0 ? 'var(--text-light)' : 'var(--primary-color)',
-                        height: '36px',
-                        fontSize: '14px'
+                        boxShadow: 'var(--shadow-sm)'
                     }}
                 >
                     Thêm vào giỏ
@@ -236,14 +261,16 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                     </div>
                 )}
                 
-                <div style={{
+                <div className="badge-fpt" style={{
                     background: product.stock > 10 ? 'var(--success-color)' : product.stock > 0 ? 'var(--warning-color)' : 'var(--error-color)',
-                    color: 'white',
+                    color: 'var(--text-white)',
                     padding: 'var(--space-xs) var(--space-sm)',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '11px',
-                    fontWeight: '500',
+                    fontWeight: '700',
                     textAlign: 'center',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
                     marginBottom: 'var(--space-sm)'
                 }}>
                     {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'} • {product.stock} sản phẩm

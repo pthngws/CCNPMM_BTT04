@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
     Row,
     Col,
@@ -56,31 +56,141 @@ const AdvancedSearch = ({
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [popularSuggestions, setPopularSuggestions] = useState([]);
 
-    // Debounced search suggestions
+    // Load popular suggestions khi component mount
+    useEffect(() => {
+        const loadPopularSuggestions = async () => {
+            try {
+                const response = await getSearchSuggestionsApi('', 10);
+                if (response && response.EC === 0) {
+                    const popular = response.DT.slice(0, 8).map(item => ({
+                        value: item.text,
+                        label: (
+                            <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px',
+                                padding: '4px 0'
+                            }}>
+                                <span style={{ 
+                                    fontSize: '11px', 
+                                    padding: '2px 6px', 
+                                    borderRadius: '3px',
+                                    background: '#f0f0f0',
+                                    color: '#666',
+                                    fontWeight: '500',
+                                    minWidth: '60px',
+                                    textAlign: 'center'
+                                }}>
+                                    Phổ biến
+                                </span>
+                                <span style={{ 
+                                    flex: 1,
+                                    fontSize: '14px',
+                                    fontWeight: '400'
+                                }}>
+                                    {item.text}
+                                </span>
+                            </div>
+                        ),
+                        type: 'popular'
+                    }));
+                    setPopularSuggestions(popular);
+                }
+            } catch (error) {
+                console.error('Error loading popular suggestions:', error);
+            }
+        };
+        loadPopularSuggestions();
+    }, []);
+
+    // Debounced search suggestions - hiển thị ngay từ ký tự đầu tiên
     const getSuggestions = useCallback(
         debounce(async (query) => {
-            if (query.length < 2) {
-                setSuggestions([]);
+            if (query.length < 1) {
+                setSuggestions(popularSuggestions);
                 return;
             }
 
             try {
-                const response = await getSearchSuggestionsApi(query, 10);
+                // Tăng số lượng suggestions và ưu tiên sản phẩm
+                const response = await getSearchSuggestionsApi(query, 20);
                 if (response && response.EC === 0) {
-                    setSuggestions(response.DT.map(item => ({ value: item.text })));
+                    // Sắp xếp để sản phẩm lên đầu
+                    const sortedSuggestions = response.DT.sort((a, b) => {
+                        if (a.type === 'product' && b.type !== 'product') return -1;
+                        if (b.type === 'product' && a.type !== 'product') return 1;
+                        return b.score - a.score;
+                    });
+
+                    const suggestions = sortedSuggestions.map(item => ({
+                        value: item.text,
+                        label: (
+                            <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px',
+                                padding: '4px 0'
+                            }}>
+                                <span style={{ 
+                                    fontSize: '11px', 
+                                    padding: '2px 6px', 
+                                    borderRadius: '3px',
+                                    background: item.type === 'product' ? '#e6f7ff' : 
+                                               item.type === 'category' ? '#f6ffed' : '#fff7e6',
+                                    color: item.type === 'product' ? '#1890ff' : 
+                                           item.type === 'category' ? '#52c41a' : '#fa8c14',
+                                    fontWeight: '500',
+                                    minWidth: '60px',
+                                    textAlign: 'center'
+                                }}>
+                                    {item.type === 'product' ? 'Sản phẩm' : 
+                                     item.type === 'category' ? 'Danh mục' : 'Tag'}
+                                </span>
+                                <span style={{ 
+                                    flex: 1,
+                                    fontSize: '14px',
+                                    fontWeight: item.type === 'product' ? '500' : '400'
+                                }}>
+                                    {item.text}
+                                </span>
+                                {item.type === 'product' && (
+                                    <span style={{
+                                        fontSize: '10px',
+                                        color: '#8c8c8c',
+                                        background: '#f5f5f5',
+                                        padding: '1px 4px',
+                                        borderRadius: '2px'
+                                    }}>
+                                        {item.score.toFixed(1)}
+                                    </span>
+                                )}
+                            </div>
+                        ),
+                        type: item.type,
+                        score: item.score
+                    }));
+                    setSuggestions(suggestions);
                 }
             } catch (error) {
                 console.error('Error getting suggestions:', error);
             }
-        }, 300),
+        }, 150), // Giảm delay để phản hồi nhanh hơn
         []
     );
 
     // Handle search input change
     const handleSearchChange = (value) => {
         setSearchParams(prev => ({ ...prev, query: value }));
+        
+        // Nếu input rỗng, hiển thị popular suggestions
+        if (value.length === 0) {
+            setSuggestions(popularSuggestions);
+        } else {
+            // Gọi suggestions ngay lập tức
         getSuggestions(value);
+        }
     };
 
     // Handle search
@@ -168,12 +278,13 @@ const AdvancedSearch = ({
 
     return (
         <Card
+            className="card-fpt"
             style={{
                 marginBottom: 'var(--space-lg)',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-lg)',
                 boxShadow: 'var(--shadow-sm)',
-                border: '1px solid var(--border-light)',
-                background: 'white'
+                border: '1px solid var(--border-color)',
+                background: 'var(--accent-color)'
             }}
             bodyStyle={{ padding: 'var(--space-lg)' }}
         >
@@ -182,12 +293,52 @@ const AdvancedSearch = ({
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} sm={16} md={18}>
                         <AutoComplete
-                            options={suggestions}
+                            options={suggestions.length > 0 ? suggestions : popularSuggestions}
                             value={searchParams.query}
                             onChange={handleSearchChange}
-                            placeholder="Tìm kiếm sản phẩm với Elasticsearch..."
+                            placeholder="Gõ để tìm kiếm sản phẩm... (ví dụ: gõ 'i' để xem gợi ý)"
                             style={{ width: '100%' }}
                             size="large"
+                            dropdownStyle={{
+                                maxHeight: '400px',
+                                borderRadius: 'var(--radius-md)',
+                                boxShadow: 'var(--shadow-md)',
+                                border: '1px solid var(--border-light)'
+                            }}
+                            dropdownMatchSelectWidth={true}
+                            onDropdownVisibleChange={(open) => {
+                                // Mở dropdown khi focus và có suggestions
+                                if (open && (suggestions.length > 0 || popularSuggestions.length > 0)) {
+                                    return true;
+                                }
+                            }}
+                            notFoundContent={
+                                searchParams.query.length > 0 ? (
+                                    <div style={{ 
+                                        padding: 'var(--space-md)', 
+                                        textAlign: 'center',
+                                        color: 'var(--text-secondary)'
+                                    }}>
+                                        <SearchOutlined style={{ fontSize: '24px', marginBottom: 'var(--space-sm)' }} />
+                                        <div>Không tìm thấy gợi ý cho "{searchParams.query}"</div>
+                                    </div>
+                                ) : (
+                                    <div style={{ 
+                                        padding: 'var(--space-md)', 
+                                        textAlign: 'center',
+                                        color: 'var(--text-secondary)'
+                                    }}>
+                                        <SearchOutlined style={{ fontSize: '24px', marginBottom: 'var(--space-sm)' }} />
+                                        <div>Gõ để tìm kiếm sản phẩm</div>
+                                    </div>
+                                )
+                            }
+                            onSelect={(value, option) => {
+                                console.log('Selected:', value, option);
+                                handleSearchChange(value);
+                                // Tự động search khi chọn suggestion
+                                setTimeout(() => handleSearch(), 100);
+                            }}
                         >
                             <Input
                                 prefix={<SearchOutlined style={{ color: 'var(--primary-color)' }} />}
@@ -197,6 +348,15 @@ const AdvancedSearch = ({
                                     borderRadius: 'var(--radius-sm)',
                                     border: '1px solid var(--border-color)',
                                     transition: 'var(--transition)'
+                                }}
+                                onFocus={(e) => {
+                                    // Hiển thị suggestions ngay khi focus
+                                    if (searchParams.query.length > 0) {
+                                        getSuggestions(searchParams.query);
+                                    } else {
+                                        // Hiển thị popular suggestions khi focus vào input rỗng
+                                        setSuggestions(popularSuggestions);
+                                    }
                                 }}
                             />
                         </AutoComplete>
@@ -208,10 +368,16 @@ const AdvancedSearch = ({
                             size="large"
                             loading={loading}
                             onClick={() => handleSearch()}
+                            className="btn-fpt"
                             style={{
                                 width: '100%',
-                                borderRadius: 'var(--radius-sm)',
-                                height: '40px'
+                                borderRadius: 'var(--radius-md)',
+                                height: '40px',
+                                background: 'var(--primary-color)',
+                                border: '2px solid var(--primary-color)',
+                                fontWeight: '600',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
                             }}
                         >
                             Tìm kiếm
@@ -227,12 +393,17 @@ const AdvancedSearch = ({
                                 icon={<FilterOutlined />}
                                 size="large"
                                 onClick={() => setShowAdvanced(!showAdvanced)}
+                                className="btn-fpt-outline"
                                 style={{
                                     width: '100%',
-                                    borderRadius: 'var(--radius-sm)',
+                                    borderRadius: 'var(--radius-md)',
                                     height: '40px',
-                                    border: '1px solid var(--border-color)',
-                                    background: showAdvanced ? 'var(--primary-light)' : 'white'
+                                    border: '2px solid var(--primary-color)',
+                                    background: showAdvanced ? 'var(--primary-color)' : 'transparent',
+                                    color: showAdvanced ? 'var(--text-white)' : 'var(--primary-color)',
+                                    fontWeight: '600',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
                                 }}
                             >
                                 {showAdvanced ? <UpOutlined /> : <DownOutlined />} Bộ lọc

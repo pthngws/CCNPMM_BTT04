@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { 
-    HomeOutlined, 
-    UserOutlined, 
-    SettingOutlined, 
-    AppstoreOutlined, 
+import {
+    HomeOutlined,
+    UserOutlined,
+    SettingOutlined,
+    AppstoreOutlined,
     ShoppingOutlined,
     MenuOutlined,
     CloseOutlined
@@ -80,38 +80,53 @@ const Header = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            height: '64px'
+            height: '80px'
         }}>
             {/* Logo */}
-            <Link to="/" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+            <Link to="/" style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: 'var(--space-sm)',
                 textDecoration: 'none',
-                color: 'var(--text-color)'
+                color: 'var(--text-white)'
             }}>
                 <div style={{
-                    width: '32px',
-                    height: '32px',
-                    background: 'var(--primary-color)',
-                    borderRadius: 'var(--radius-sm)',
+                    width: '40px',
+                    height: '40px',
+                    background: 'var(--secondary-color)',
+                    borderRadius: 'var(--radius-md)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '16px',
+                    fontSize: '18px',
                     fontWeight: 'bold',
-                    color: 'white'
+                    color: 'var(--text-white)',
+                    boxShadow: 'var(--shadow-sm)'
                 }}>
-                    S
+                    T
                 </div>
-                <Text style={{ 
-                    color: 'var(--text-color)', 
-                    fontSize: '18px', 
-                    fontWeight: '600',
-                    margin: 0
-                }}>
-                    ShopApp
-                </Text>
+                <div>
+                    <Text style={{
+                        color: 'var(--text-white)',
+                        fontSize: '20px',
+                        fontWeight: '700',
+                        margin: 0,
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px'
+                    }}>
+                        TPT Shop
+                    </Text>
+                    <Text style={{
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '12px',
+                        fontWeight: '400',
+                        margin: 0,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>
+                        Technology Store
+                    </Text>
+                </div>
             </Link>
 
             {/* Navigation */}
@@ -124,7 +139,16 @@ const Header = () => {
                     flex: 1,
                     justifyContent: 'center'
                 }}
-                items={menuItems}
+                items={menuItems.map(item => ({
+                    ...item,
+                    style: {
+                        color: 'var(--text-white)',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        fontSize: '14px'
+                    }
+                }))}
             />
 
             {/* User Section */}
@@ -141,18 +165,25 @@ const Header = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 'var(--space-sm)',
-                                color: 'var(--text-color)',
+                                color: 'var(--text-white)',
                                 height: '40px',
                                 padding: '0 var(--space-md)',
-                                borderRadius: 'var(--radius-sm)',
-                                background: 'var(--background-light)',
-                                border: '1px solid var(--border-light)'
+                                borderRadius: 'var(--radius-md)',
+                                background: 'rgba(255, 255, 255, 0.1)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)'
                             }}
                         >
-                            <Avatar size="small" style={{ background: 'var(--primary-color)' }}>
+                            <Avatar size="small" style={{ background: 'var(--secondary-color)' }}>
                                 {auth.user.name?.charAt(0)?.toUpperCase()}
                             </Avatar>
-                            <Text style={{ color: 'var(--text-color)', margin: 0 }}>
+                            <Text style={{
+                                color: 'var(--text-white)',
+                                margin: 0,
+                                fontWeight: '600',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                fontSize: '14px'
+                            }}>
                                 {auth.user.name}
                             </Text>
                         </Button>
@@ -162,10 +193,16 @@ const Header = () => {
                         type="primary"
                         icon={<UserOutlined />}
                         onClick={() => navigate('/login')}
+                        className="btn-fpt"
                         style={{
-                            borderRadius: 'var(--radius-sm)',
+                            background: 'var(--secondary-color)',
+                            border: '2px solid var(--secondary-color)',
+                            borderRadius: 'var(--radius-md)',
                             height: '40px',
-                            padding: '0 var(--space-md)'
+                            padding: '0 var(--space-md)',
+                            fontWeight: '600',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
                         }}
                     >
                         Đăng nhập
@@ -183,35 +220,50 @@ const Header = () => {
                 justifyContent: 'space-between',
                 marginBottom: '24px'
             }}>
-                <Link to="/" style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                <Link to="/" style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '12px',
                     textDecoration: 'none',
-                    color: 'var(--gray-900)'
+                    color: 'var(--text-color)'
                 }}>
                     <div style={{
                         width: '32px',
                         height: '32px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        borderRadius: '8px',
+                        background: 'var(--primary-color)',
+                        borderRadius: 'var(--radius-md)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        color: 'white'
+                        color: 'var(--text-white)',
+                        boxShadow: 'var(--shadow-sm)'
                     }}>
-                        S
+                        F
                     </div>
-                    <Text style={{ 
-                        color: 'var(--gray-900)', 
-                        fontSize: '18px', 
-                        fontWeight: '600',
-                        margin: 0
-                    }}>
-                        ShopApp
-                    </Text>
+                    <div>
+                        <Text style={{
+                            color: 'var(--text-color)',
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            FPT Shop
+                        </Text>
+                        <Text style={{
+                            color: 'var(--text-secondary)',
+                            fontSize: '12px',
+                            fontWeight: '400',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            Technology Store
+                        </Text>
+                    </div>
                 </Link>
                 <Button
                     type="text"
@@ -280,11 +332,12 @@ const Header = () => {
 
     return (
         <header style={{
-            background: 'white',
-            borderBottom: '1px solid var(--border-light)',
+            background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%)',
+            borderBottom: '3px solid var(--secondary-color)',
             position: 'sticky',
             top: 0,
-            zIndex: 1000
+            zIndex: 1000,
+            boxShadow: 'var(--shadow-lg)'
         }}>
             {/* Desktop Menu */}
             <div style={{ display: 'none' }} className="desktop-menu">
@@ -299,54 +352,87 @@ const Header = () => {
                     justifyContent: 'space-between',
                     padding: 'var(--space-sm) var(--space-md)'
                 }}>
-                    <Link to="/" style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                    <Link to="/" style={{
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 'var(--space-sm)',
                         textDecoration: 'none',
-                        color: 'var(--text-color)'
+                        color: 'var(--text-white)'
                     }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            background: 'var(--primary-color)',
-                            borderRadius: 'var(--radius-sm)',
+                            width: '40px',
+                            height: '40px',
+                            background: 'var(--secondary-color)',
+                            borderRadius: 'var(--radius-md)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '16px',
+                            fontSize: '18px',
                             fontWeight: 'bold',
-                            color: 'white'
+                            color: 'var(--text-white)',
+                            boxShadow: 'var(--shadow-sm)'
                         }}>
-                            S
+                            F
                         </div>
-                        <Text style={{ 
-                            color: 'var(--text-color)', 
-                            fontSize: '16px', 
-                            fontWeight: '600',
-                            margin: 0
-                        }}>
-                            ShopApp
-                        </Text>
+                        <div>
+                            <Text style={{
+                                color: 'var(--text-white)',
+                                fontSize: '20px',
+                                fontWeight: '700',
+                                margin: 0,
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}>
+                                FPT Shop
+                            </Text>
+                            <Text style={{
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                fontSize: '12px',
+                                fontWeight: '400',
+                                margin: 0,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                            }}>
+                                Technology Store
+                            </Text>
+                        </div>
                     </Link>
                     <Button
                         type="text"
                         icon={<MenuOutlined />}
                         onClick={() => setMobileMenuVisible(true)}
-                        style={{ color: 'var(--text-color)' }}
+                        style={{
+                            color: 'var(--text-white)',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: 'var(--radius-md)'
+                        }}
                     />
                 </div>
             </div>
 
             {/* Mobile Drawer */}
             <Drawer
-                title={null}
+                title={
+                    <div style={{
+                        color: 'var(--text-white)',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px'
+                    }}>
+                        FPT Menu
+                    </div>
+                }
                 placement="right"
                 onClose={() => setMobileMenuVisible(false)}
                 open={mobileMenuVisible}
                 width={280}
                 styles={{
-                    body: { padding: 0 }
+                    body: { padding: 0 },
+                    header: {
+                        background: 'var(--primary-color)',
+                        borderBottom: '2px solid var(--secondary-color)'
+                    }
                 }}
             >
                 <MobileMenu />

@@ -7,6 +7,13 @@ const {
     createProductService 
 } = require('../services/productService');
 
+const { 
+    getSimilarProducts: getSimilarProductsES,
+    getTrendingProducts: getTrendingProductsES,
+    getSearchFacets: getSearchFacetsES,
+    searchWithTypoTolerance: searchWithTypoToleranceES
+} = require('../services/elasticsearchService');
+
 const getProductsByCategory = async (req, res) => {
     const { categoryId } = req.params;
     const { page = 1, limit = 12 } = req.query;
@@ -86,13 +93,78 @@ const getSearchSuggestions = async (req, res) => {
     return res.status(200).json(data);
 };
 
+// Get similar products
+const getSimilarProducts = async (req, res) => {
+    const { id } = req.params;
+    const { limit = 6 } = req.query;
+    
+    const data = await getSimilarProductsES(id, parseInt(limit));
+    return res.status(200).json(data);
+};
+
+// Get trending products
+const getTrendingProducts = async (req, res) => {
+    const { limit = 10, timeRange = '7d' } = req.query;
+    
+    const data = await getTrendingProductsES(parseInt(limit), timeRange);
+    return res.status(200).json(data);
+};
+
+// Get search facets/aggregations
+const getSearchFacets = async (req, res) => {
+    const {
+        query = '',
+        category = '',
+        minPrice = 0,
+        maxPrice = Number.MAX_SAFE_INTEGER,
+        minRating = 0,
+        maxRating = 5
+    } = req.query;
+
+    const searchParams = {
+        query,
+        category,
+        minPrice: parseFloat(minPrice),
+        maxPrice: parseFloat(maxPrice),
+        minRating: parseFloat(minRating),
+        maxRating: parseFloat(maxRating)
+    };
+
+    const data = await getSearchFacetsES(searchParams);
+    return res.status(200).json(data);
+};
+
+// Search with typo tolerance
+const searchWithTypoTolerance = async (req, res) => {
+    const { q: query, limit = 12 } = req.query;
+    
+    if (!query || query.trim().length < 1) {
+        return res.status(200).json({
+            EC: 0,
+            EM: 'Query required',
+            DT: {
+                products: [],
+                total: 0,
+                maxScore: 0
+            }
+        });
+    }
+
+    const data = await searchWithTypoToleranceES(query.trim(), parseInt(limit));
+    return res.status(200).json(data);
+};
+
 module.exports = {
     getProductsByCategory,
     getAllProducts,
     advancedSearchProducts,
     getSearchSuggestions,
     getProductById,
-    createProduct
+    createProduct,
+    getSimilarProducts,
+    getTrendingProducts,
+    getSearchFacets,
+    searchWithTypoTolerance
 };
 
 

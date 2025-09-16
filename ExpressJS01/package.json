@@ -7,7 +7,10 @@
     "start": "nodemon ./server.js",
     "seed-db": "node src/scripts/seedData.js",
     "reindex": "node src/scripts/reindexProducts.js",
+    "reindex-new": "node src/scripts/reindexWithNewMapping.js",
     "update-images": "node src/scripts/updateImages.js",
+    "update-all-images": "node src/scripts/updateAllProductImages.js",
+    "test-suggestions": "node src/scripts/testSuggestions.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
