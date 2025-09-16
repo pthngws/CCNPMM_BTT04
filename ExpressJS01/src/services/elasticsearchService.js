@@ -20,6 +20,9 @@ const indexProduct = async (product) => {
             rating: product.rating || 0,
             reviewCount: product.reviewCount || 0,
             viewCount: product.viewCount || 0,
+            purchaseCount: product.purchaseCount || 0,
+            commentCount: product.commentCount || 0,
+            favoriteCount: product.favoriteCount || 0,
             tags: product.tags || [],
             isActive: product.isActive,
             isFeatured: product.isFeatured || false,
@@ -518,32 +521,43 @@ const getSimilarProducts = async (productId, limit = 6) => {
             body: {
                 size: limit,
                 query: {
-                    more_like_this: {
-                        fields: ['name', 'description', 'categoryName', 'tags'],
-                        like: [
-                            {
-                                _index: PRODUCTS_INDEX,
-                                _id: productId
-                            }
-                        ],
-                        min_term_freq: 1,
-                        max_query_terms: 12,
-                        min_doc_freq: 1,
-                        max_doc_freq: 1000,
-                        min_word_length: 2,
-                        boost_terms: 2.0,
-                        include: true,
-                        minimum_should_match: '30%'
-                    }
-                },
-                filter: {
                     bool: {
                         must: [
-                            { term: { isActive: true } },
-                            { bool: { must_not: { term: { _id: productId } } } }
-                        ]
+                            {
+                                more_like_this: {
+                                    fields: ['name', 'description', 'categoryName', 'tags'],
+                                    like: [
+                                        {
+                                            _index: PRODUCTS_INDEX,
+                                            _id: productId
+                                        }
+                                    ],
+                                    min_term_freq: 1,
+                                    max_query_terms: 12,
+                                    min_doc_freq: 1,
+                                    max_doc_freq: 1000,
+                                    min_word_length: 2,
+                                    boost_terms: 2.0,
+                                    include: true,
+                                    minimum_should_match: '30%'
+                                }
+                            }
+                        ],
+                        filter: {
+                            bool: {
+                                must: [
+                                    { term: { isActive: true } },
+                                    { bool: { must_not: { term: { _id: productId } } } }
+                                ]
+                            }
+                        }
                     }
-                }
+                },
+                sort: [
+                    { _score: { order: 'desc' } },
+                    { purchaseCount: { order: 'desc' } },
+                    { rating: { order: 'desc' } }
+                ]
             }
         });
 

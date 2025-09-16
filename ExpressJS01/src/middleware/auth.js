@@ -12,19 +12,25 @@ const auth = (req, res, next) => {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 req.user = {
+                    id: decoded.id,
                     email: decoded.email,
-                    name: decoded.name
+                    name: decoded.name,
+                    role: decoded.role
                 }
                 next();
             } catch (error) {
-                console.log('>>> check token: ', decoded);
+                console.log('>>> check token error: ', error.message);
                 return res.status(401).json({
-                    message: 'Token bị hết hạn/Học không hợp lệ'
+                    EC: 1,
+                    EM: 'Token bị hết hạn hoặc không hợp lệ',
+                    DT: null
                 });
             }
         } else {
             return res.status(401).json({
-                message: 'Bạn chưa truyền Access Token ở header/Học token bị hết hạn'
+                EC: 1,
+                EM: 'Bạn chưa truyền Access Token ở header',
+                DT: null
             });
         }
     }

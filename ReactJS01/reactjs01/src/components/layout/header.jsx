@@ -6,11 +6,15 @@ import {
     AppstoreOutlined,
     ShoppingOutlined,
     MenuOutlined,
-    CloseOutlined
+    CloseOutlined,
+    HeartOutlined,
+    EyeOutlined
 } from '@ant-design/icons';
 import { Menu, Button, Drawer, Typography, Avatar, Dropdown } from 'antd';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/auth.context.jsx';
+import CartIcon from '../common/CartIcon';
+import CartModal from '../common/CartModal';
 
 const { Item, SubMenu } = Menu;
 const { Text } = Typography;
@@ -20,14 +24,17 @@ const Header = () => {
     const location = useLocation();
     const { auth, setAuth } = useContext(AuthContext);
     const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+    const [cartModalVisible, setCartModalVisible] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem("access_token");
         setAuth({
             isAuthenticated: false,
             user: {
+                id: "",
                 email: "",
-                name: ""
+                name: "",
+                role: ""
             }
         });
         navigate("/login");
@@ -48,6 +55,16 @@ const Header = () => {
             key: 'user',
             label: <Link to="/user">Quản lý tài khoản</Link>,
             icon: <UserOutlined />
+        },
+        {
+            key: 'favorites',
+            label: <Link to="/favorites">Sản phẩm yêu thích</Link>,
+            icon: <HeartOutlined />
+        },
+        {
+            key: 'viewed',
+            label: <Link to="/viewed-products">Sản phẩm đã xem</Link>,
+            icon: <EyeOutlined />
         },
         {
             key: 'logout',
@@ -153,6 +170,13 @@ const Header = () => {
 
             {/* User Section */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                {auth.isAuthenticated && (
+                    <CartIcon 
+                        size="large" 
+                        onClick={() => setCartModalVisible(true)}
+                        style={{ color: 'var(--text-white)' }}
+                    />
+                )}
                 {auth.isAuthenticated ? (
                     <Dropdown
                         menu={{ items: userMenuItems }}
@@ -437,6 +461,11 @@ const Header = () => {
             >
                 <MobileMenu />
             </Drawer>
+            
+            <CartModal 
+                visible={cartModalVisible}
+                onClose={() => setCartModalVisible(false)}
+            />
         </header>
     );
 };

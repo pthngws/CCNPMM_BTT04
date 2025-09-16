@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import { Layout, Spin, Typography } from 'antd';
 import AppHeader from './components/layout/header.jsx';
 import { AuthContext } from './components/context/auth.context';
+import { CartProvider } from './components/context/cart.context';
 import { Outlet } from 'react-router-dom';
 import './styles/search.css';
 import './styles/global.css';
@@ -37,15 +38,17 @@ function App() {
           </Text>
         </div>
       ) : (
-        <Layout style={{ minHeight: '100vh', background: 'var(--gray-50)' }}>
-          <AppHeader />
-          <Content style={{ 
-            background: 'transparent',
-            minHeight: 'calc(100vh - 64px)'
-          }}>
-            <Outlet />
-          </Content>
-        </Layout>
+        <CartProvider>
+          <Layout style={{ minHeight: '100vh', background: 'var(--gray-50)' }}>
+            <AppHeader />
+            <Content style={{ 
+              background: 'transparent',
+              minHeight: 'calc(100vh - 64px)'
+            }}>
+              <Outlet />
+            </Content>
+          </Layout>
+        </CartProvider>
       )}
     </>
   );

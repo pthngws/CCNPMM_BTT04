@@ -13,6 +13,40 @@ const {
     getSearchFacets,
     searchWithTypoTolerance
 } = require('../controllers/productController');
+const {
+    addToFavoritesController,
+    removeFromFavoritesController,
+    getFavoriteProductsController,
+    isFavoriteController
+} = require('../controllers/favoriteController');
+const {
+    getUserCart,
+    addItemToCart,
+    updateCartItemQuantity,
+    removeItemFromCart,
+    clearUserCart,
+    getCartCount
+} = require('../controllers/cartController');
+const {
+    addToViewedProductsController,
+    getViewedProductsController,
+    removeFromViewedProductsController,
+    clearViewedProductsController
+} = require('../controllers/viewedProductController');
+const {
+    createCommentController,
+    getProductCommentsController,
+    updateCommentController,
+    deleteCommentController,
+    toggleCommentLikeController
+} = require('../controllers/commentController');
+const {
+    createPurchaseController,
+    updatePurchaseStatusController,
+    getUserPurchasesController,
+    getProductPurchaseStatsController,
+    getPurchaseByIdController
+} = require('../controllers/purchaseController');
 const auth = require('../middleware/auth');
 const publicAuth = require('../middleware/publicAuth');
 const delay = require('../middleware/delay');
@@ -47,5 +81,39 @@ routerAPI.get('/account', delay, getAccount);
 // Admin routes (cần authentication)
 routerAPI.post('/categories', createCategory);
 routerAPI.post('/products', createProduct);
+
+// Favorite products routes
+routerAPI.post('/favorites/:productId', addToFavoritesController);
+routerAPI.delete('/favorites/:productId', removeFromFavoritesController);
+routerAPI.get('/favorites', getFavoriteProductsController);
+routerAPI.get('/favorites/:productId/check', isFavoriteController);
+
+// Viewed products routes
+routerAPI.post('/viewed-products/:productId', addToViewedProductsController);
+routerAPI.get('/viewed-products', getViewedProductsController);
+routerAPI.delete('/viewed-products/:productId', removeFromViewedProductsController);
+routerAPI.delete('/viewed-products', clearViewedProductsController);
+
+// Comments routes
+routerAPI.post('/products/:productId/comments', createCommentController);
+routerAPI.get('/products/:productId/comments', getProductCommentsController);
+routerAPI.put('/comments/:commentId', updateCommentController);
+routerAPI.delete('/comments/:commentId', deleteCommentController);
+routerAPI.post('/comments/:commentId/like', toggleCommentLikeController);
+
+// Purchase routes
+routerAPI.post('/purchases', createPurchaseController);
+routerAPI.put('/purchases/:purchaseId/status', updatePurchaseStatusController);
+routerAPI.get('/purchases', getUserPurchasesController);
+routerAPI.get('/purchases/:purchaseId', getPurchaseByIdController);
+routerAPI.get('/products/:productId/purchase-stats', getProductPurchaseStatsController);
+
+// Cart routes
+routerAPI.get('/cart', getUserCart);
+routerAPI.post('/cart/add', addItemToCart);
+routerAPI.put('/cart/update', updateCartItemQuantity);
+routerAPI.delete('/cart/remove/:productId', removeItemFromCart);
+routerAPI.delete('/cart/clear', clearUserCart);
+routerAPI.get('/cart/count', getCartCount);
 
 module.exports = routerAPI;

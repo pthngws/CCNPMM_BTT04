@@ -17,32 +17,34 @@ const LoginPage = () => {
         try {
             const res = await loginApi(values.email, values.password);
             if (res && res.EC === 0) {
-                localStorage.setItem('access_token', res.access_token);
+                localStorage.setItem('access_token', res.DT.access_token);
                 setAuth({
                     isAuthenticated: true,
                     user: {
-                        email: res.user?.email || res.email,
-                        name: res.user?.name || res.name
+                        id: res.DT.user?.id || "",
+                        email: res.DT.user?.email || "",
+                        name: res.DT.user?.name || "",
+                        role: res.DT.user?.role || ""
                     }
                 });
                 notification.success({
-                    message: 'LOGIN USER',
-                    description: 'Success'
+                    message: 'Đăng nhập thành công',
+                    description: res.EM || 'Chào mừng bạn quay trở lại!'
                 });
                 // Redirect to the page they were trying to access, or home
                 const from = location.state?.from?.pathname || '/';
                 navigate(from, { replace: true });
             } else {
                 notification.error({
-                    message: 'LOGIN USER',
-                    description: res?.EM ?? 'Error'
+                    message: 'Đăng nhập thất bại',
+                    description: res?.EM ?? 'Có lỗi xảy ra'
                 });
             }
         } catch (error) {
             console.error('Login error:', error);
             notification.error({
-                message: 'LOGIN USER',
-                description: 'Network error or server error'
+                message: 'Đăng nhập thất bại',
+                description: 'Lỗi kết nối hoặc server'
             });
         } finally {
             setLoading(false);

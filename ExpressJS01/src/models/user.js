@@ -4,7 +4,21 @@ const userSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
-    role: String
+    role: String,
+    favoriteProducts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
+    viewedProducts: [{
+        product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        },
+        viewedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 });
 
 const User = mongoose.model('user', userSchema);

@@ -58,6 +58,21 @@ const productSchema = new mongoose.Schema({
     isOnSale: {
         type: Boolean,
         default: false
+    },
+    purchaseCount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    commentCount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    favoriteCount: {
+        type: Number,
+        default: 0,
+        min: 0
     }
 }, {
     timestamps: true

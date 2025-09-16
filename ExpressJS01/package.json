@@ -11,6 +11,10 @@
     "update-images": "node src/scripts/updateImages.js",
     "update-all-images": "node src/scripts/updateAllProductImages.js",
     "test-suggestions": "node src/scripts/testSuggestions.js",
+    "update-stats": "node src/scripts/updateProductStats.js",
+    "update-real-stats": "node src/scripts/updateRealStats.js",
+    "create-sample-data": "node src/scripts/createSampleData.js",
+    "update-elasticsearch-mapping": "node src/scripts/updateElasticsearchMapping.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

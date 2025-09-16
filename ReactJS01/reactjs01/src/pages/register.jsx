@@ -15,21 +15,21 @@ const RegisterPage = () => {
             const res = await createUserApi(name, email, password);
             if (res && res.EC === 0) {
                 notification.success({
-                    message: 'CREATE USER',
-                    description: 'Success'
+                    message: 'Đăng ký thành công',
+                    description: res.EM || 'Tài khoản đã được tạo thành công!'
                 });
                 navigate('/login');
             } else {
                 notification.error({
-                    message: 'CREATE USER',
-                    description: res?.EM ?? 'Error'
+                    message: 'Đăng ký thất bại',
+                    description: res?.EM ?? 'Có lỗi xảy ra'
                 });
             }
         } catch (error) {
             console.error('Register error:', error);
             notification.error({
-                message: 'CREATE USER',
-                description: 'Network error or server error'
+                message: 'Đăng ký thất bại',
+                description: 'Lỗi kết nối hoặc server'
             });
         } finally {
             setLoading(false);

@@ -1,11 +1,20 @@
-import React from 'react';
-import { Card, Image, Typography, Space, Tag, Button, Badge, Tooltip } from 'antd';
-import { ShoppingCartOutlined, EyeOutlined, StarOutlined, FireOutlined, CrownOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, Image, Typography, Space, Tag, Button, Badge, Tooltip, message } from 'antd';
+import { ShoppingCartOutlined, EyeOutlined, StarOutlined, FireOutlined, CrownOutlined, HeartOutlined, HeartFilled, MessageOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { addToFavoritesApi, removeFromFavoritesApi, isFavoriteApi, addToViewedProductsApi } from '../../util/apis';
+import { useCart } from '../context/cart.context';
 import { getRandomProductImage } from '../../constants/images';
 
 const { Title, Text } = Typography;
 
 const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
+    const navigate = useNavigate();
+    const { addToCart } = useCart();
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
+    const [cartLoading, setCartLoading] = useState(false);
+
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -19,6 +28,80 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
     };
 
     const discount = calculateDiscount(product.originalPrice, product.price);
+
+    // Check if product is favorite on mount
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            try {
+                const response = await isFavoriteApi(product._id);
+                if (response && response.EC === 0) {
+                    setIsFavorite(response.DT);
+                }
+            } catch (error) {
+                console.error('Error checking favorite status:', error);
+            }
+        };
+
+        checkFavoriteStatus();
+    }, [product._id]);
+
+    // Handle favorite toggle
+    const handleFavoriteToggle = async (e) => {
+        e.stopPropagation();
+        setFavoriteLoading(true);
+        
+        try {
+            if (isFavorite) {
+                const response = await removeFromFavoritesApi(product._id);
+                if (response && response.EC === 0) {
+                    setIsFavorite(false);
+                    message.success('Đã xóa khỏi danh sách yêu thích');
+                } else {
+                    message.error(response?.EM || 'Có lỗi xảy ra');
+                }
+            } else {
+                const response = await addToFavoritesApi(product._id);
+                if (response && response.EC === 0) {
+                    setIsFavorite(true);
+                    message.success('Đã thêm vào danh sách yêu thích');
+                } else {
+                    message.error(response?.EM || 'Có lỗi xảy ra');
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            message.error('Có lỗi xảy ra khi cập nhật danh sách yêu thích');
+        } finally {
+            setFavoriteLoading(false);
+        }
+    };
+
+    // Handle view detail with tracking
+    const handleViewDetail = async (product) => {
+        try {
+            // Track viewed product
+            await addToViewedProductsApi(product._id);
+        } catch (error) {
+            console.error('Error tracking viewed product:', error);
+        }
+        
+        // Navigate to product detail page
+        navigate(`/product/${product._id}`);
+    };
+
+    const handleAddToCartClick = async (e) => {
+        e.stopPropagation(); // Prevent card click event
+        
+        try {
+            setCartLoading(true);
+            await addToCart(product._id, 1);
+            message.success('Đã thêm sản phẩm vào giỏ hàng');
+        } catch (error) {
+            message.error(error.message || 'Có lỗi xảy ra');
+        } finally {
+            setCartLoading(false);
+        }
+    };
 
     return (
         <Card
@@ -136,6 +219,36 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                         )}
                     </div>
                     
+                    {/* Favorite Button */}
+                    <div style={{ 
+                        position: 'absolute', 
+                        top: 'var(--space-sm)', 
+                        right: 'var(--space-sm)', 
+                        zIndex: 2
+                    }}>
+                        <Tooltip title={isFavorite ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}>
+                            <Button
+                                type="text"
+                                shape="circle"
+                                icon={isFavorite ? <HeartFilled /> : <HeartOutlined />}
+                                onClick={handleFavoriteToggle}
+                                loading={favoriteLoading}
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    background: 'rgba(255, 255, 255, 0.9)',
+                                    border: 'none',
+                                    color: isFavorite ? '#ff4d4f' : '#8c8c8c',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                                    backdropFilter: 'blur(4px)'
+                                }}
+                            />
+                        </Tooltip>
+                    </div>
+                    
                     {product.stock === 0 && (
                         <div style={{
                             position: 'absolute',
@@ -162,7 +275,7 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                 <Button 
                     type="primary" 
                     icon={<EyeOutlined />} 
-                    onClick={() => onViewDetail(product)}
+                    onClick={() => handleViewDetail(product)}
                     block
                     className="btn-fpt"
                     style={{
@@ -184,7 +297,8 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                 <Button 
                     type="default" 
                     icon={<ShoppingCartOutlined />} 
-                    onClick={() => onAddToCart(product)}
+                    onClick={handleAddToCartClick}
+                    loading={cartLoading}
                     disabled={product.stock === 0}
                     block
                     className="btn-fpt-outline"
@@ -260,6 +374,64 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                         </Space>
                     </div>
                 )}
+
+                {/* Stats Row */}
+                <div style={{ 
+                    marginBottom: 'var(--space-sm)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-xs)'
+                }}>
+                    <Space size="small" wrap>
+                        {product.purchaseCount > 0 && (
+                            <Space size="xs">
+                                <ShoppingOutlined style={{ 
+                                    color: 'var(--success-color)',
+                                    fontSize: '11px'
+                                }} />
+                                <Text style={{ 
+                                    fontSize: '11px',
+                                    color: 'var(--text-secondary)',
+                                    fontWeight: '500'
+                                }}>
+                                    {product.purchaseCount} đã mua
+                                </Text>
+                            </Space>
+                        )}
+                        {product.commentCount > 0 && (
+                            <Space size="xs">
+                                <MessageOutlined style={{ 
+                                    color: 'var(--primary-color)',
+                                    fontSize: '11px'
+                                }} />
+                                <Text style={{ 
+                                    fontSize: '11px',
+                                    color: 'var(--text-secondary)',
+                                    fontWeight: '500'
+                                }}>
+                                    {product.commentCount} bình luận
+                                </Text>
+                            </Space>
+                        )}
+                        {product.favoriteCount > 0 && (
+                            <Space size="xs">
+                                <HeartOutlined style={{ 
+                                    color: '#ff4d4f',
+                                    fontSize: '11px'
+                                }} />
+                                <Text style={{ 
+                                    fontSize: '11px',
+                                    color: 'var(--text-secondary)',
+                                    fontWeight: '500'
+                                }}>
+                                    {product.favoriteCount} yêu thích
+                                </Text>
+                            </Space>
+                        )}
+                    </Space>
+                </div>
                 
                 <div className="badge-fpt" style={{
                     background: product.stock > 10 ? 'var(--success-color)' : product.stock > 0 ? 'var(--warning-color)' : 'var(--error-color)',

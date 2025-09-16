@@ -89,6 +89,15 @@ const productsMapping = {
             viewCount: {
                 type: 'integer'
             },
+            purchaseCount: {
+                type: 'integer'
+            },
+            commentCount: {
+                type: 'integer'
+            },
+            favoriteCount: {
+                type: 'integer'
+            },
             tags: {
                 type: 'keyword',
                 fields: {
