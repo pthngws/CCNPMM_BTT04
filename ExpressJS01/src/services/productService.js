@@ -128,6 +128,46 @@ const getProductByIdService = async (productId) => {
     }
 };
 
+const getFeaturedProductsService = async (page = 1, limit = 12) => {
+    try {
+        const skip = (page - 1) * limit;
+        
+        const products = await Product.find({ 
+            isActive: true,
+            isFeatured: true 
+        })
+        .populate('category', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+        const totalProducts = await Product.countDocuments({ 
+            isActive: true,
+            isFeatured: true 
+        });
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        return {
+            EC: 0,
+            EM: 'Get featured products successfully',
+            DT: {
+                products,
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalProducts,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
+            }
+        };
+    } catch (error) {
+        console.log('Error in getFeaturedProductsService:', error);
+        return { EC: -1, EM: 'Failed to get featured products' };
+    }
+};
+
 const createProductService = async (productData) => {
     try {
         const { name, description, price, originalPrice, images, category, stock, tags, isFeatured } = productData;
@@ -165,6 +205,7 @@ const createProductService = async (productData) => {
 module.exports = {
     getProductsByCategoryService,
     getAllProductsService,
+    getFeaturedProductsService,
     advancedSearchProductsService,
     getSearchSuggestionsService,
     getProductByIdService,

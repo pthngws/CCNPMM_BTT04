@@ -1,6 +1,7 @@
 const { 
     getProductsByCategoryService, 
     getAllProductsService, 
+    getFeaturedProductsService,
     advancedSearchProductsService,
     getSearchSuggestionsService,
     getProductByIdService, 
@@ -26,6 +27,13 @@ const getAllProducts = async (req, res) => {
     const { page = 1, limit = 12, search = '' } = req.query;
     
     const data = await getAllProductsService(parseInt(page), parseInt(limit), search);
+    return res.status(200).json(data);
+};
+
+const getFeaturedProducts = async (req, res) => {
+    const { page = 1, limit = 12 } = req.query;
+    
+    const data = await getFeaturedProductsService(parseInt(page), parseInt(limit));
     return res.status(200).json(data);
 };
 
@@ -81,13 +89,7 @@ const advancedSearchProducts = async (req, res) => {
 const getSearchSuggestions = async (req, res) => {
     const { q: query, limit = 10 } = req.query;
     
-    if (!query || query.trim().length < 2) {
-        return res.status(200).json({
-            EC: 0,
-            EM: 'Query too short',
-            DT: []
-        });
-    }
+    // Cho phép query ngắn để hiện gợi ý phổ biến hoặc gợi ý ngay từ ký tự đầu tiên
 
     const data = await getSearchSuggestionsService(query.trim(), parseInt(limit));
     return res.status(200).json(data);
@@ -157,6 +159,7 @@ const searchWithTypoTolerance = async (req, res) => {
 module.exports = {
     getProductsByCategory,
     getAllProducts,
+    getFeaturedProducts,
     advancedSearchProducts,
     getSearchSuggestions,
     getProductById,

@@ -184,47 +184,45 @@ const searchProducts = async (searchParams) => {
             }
         };
 
-        // Thêm fuzzy search nếu có query
+        // Thêm tìm kiếm văn bản nếu có query
         if (query.trim()) {
-            // Nếu query quá ngắn (1-2 ký tự), dùng wildcard search
-            if (query.trim().length <= 2) {
+            const q = query.trim().toLowerCase();
+
+            // Nếu query quá ngắn (1-2 ký tự), dùng wildcard search đơn giản
+            if (q.length <= 2) {
                 queryBody.body.query.bool.must.push({
                     bool: {
                         should: [
-                            {
-                                wildcard: {
-                                    name: `*${query.toLowerCase()}*`
-                                }
-                            },
-                            {
-                                wildcard: {
-                                    description: `*${query.toLowerCase()}*`
-                                }
-                            },
-                            {
-                                wildcard: {
-                                    categoryName: `*${query.toLowerCase()}*`
-                                }
-                            },
-                            {
-                                wildcard: {
-                                    tags: `*${query.toLowerCase()}*`
-                                }
-                            }
+                            { wildcard: { name: `*${q}*` } },
+                            { wildcard: { description: `*${q}*` } },
+                            { wildcard: { categoryName: `*${q}*` } },
+                            { wildcard: { tags: `*${q}*` } }
                         ],
                         minimum_should_match: 1
                     }
                 });
             } else {
-                // Query dài hơn, dùng fuzzy search
+                // Với query >= 3 ký tự: ưu tiên prefix match trên name.autocomplete,
+                // đồng thời bổ sung fuzzy và wildcard làm fallback (chỉ cần 1 trong các điều kiện khớp)
                 queryBody.body.query.bool.must.push({
-                    multi_match: {
-                        query: query,
-                        fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
-                        type: 'best_fields',
-                        fuzziness: 'AUTO',
-                        prefix_length: 0,
-                        max_expansions: 100
+                    bool: {
+                        should: [
+                            { match_phrase_prefix: { 'name.autocomplete': q } },
+                            {
+                                multi_match: {
+                                    query: q,
+                                    fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
+                                    type: 'best_fields',
+                                    fuzziness: 'AUTO',
+                                    prefix_length: 0,
+                                    max_expansions: 100
+                                }
+                            },
+                            { wildcard: { name: `*${q}*` } },
+                            { wildcard: { categoryName: `*${q}*` } },
+                            { wildcard: { tags: `*${q}*` } }
+                        ],
+                        minimum_should_match: 1
                     }
                 });
             }
@@ -352,113 +350,171 @@ const searchProducts = async (searchParams) => {
     }
 };
 
-// Lấy suggestions cho autocomplete - lấy tên sản phẩm thực từ database
+// Lấy suggestions cho autocomplete - sử dụng Elasticsearch
 const getSearchSuggestions = async (query, limit = 10) => {
     try {
-        if (!query || query.trim().length < 1) {
-            // Nếu không có query, lấy sản phẩm phổ biến
-            const popularProducts = await Product.find({ 
-                isActive: true 
-            })
-            .sort({ 
-                isFeatured: -1, 
-                viewCount: -1, 
-                rating: -1 
-            })
-            .limit(limit)
-            .select('name rating viewCount isFeatured');
+        const trimmed = (query || '').trim();
 
-            const suggestions = popularProducts.map(product => ({
-                text: product.name,
-                score: product.isFeatured ? 10 : (product.viewCount || 0) + (product.rating || 0),
+        // Trường hợp không có query: lấy sản phẩm phổ biến từ ES
+        if (!trimmed) {
+            const response = await client.search({
+                index: PRODUCTS_INDEX,
+                body: {
+                    size: limit,
+                    query: {
+                        bool: {
+                            must: [ { term: { isActive: true } } ]
+                        }
+                    },
+                    sort: [
+                        { isFeatured: { order: 'desc' } },
+                        { viewCount: { order: 'desc' } },
+                        { rating: { order: 'desc' } }
+                    ]
+                }
+            });
+
+            const suggestions = response.hits.hits.map(hit => ({
+                text: hit._source.name,
+                score: (hit._source.isFeatured ? 10 : 0) + (hit._source.viewCount || 0) + (hit._source.rating || 0),
                 type: 'product',
-                source: 'name'
+                source: 'es-popular',
+                productId: hit._id
             }));
 
             return {
                 EC: 0,
-                EM: 'Popular products retrieved successfully',
+                EM: 'Popular products retrieved successfully (ES)',
                 DT: suggestions
             };
         }
 
-        const queryLower = query.toLowerCase().trim();
-        
-        // Tìm kiếm sản phẩm với tên chứa query
-        const products = await Product.find({
-            isActive: true,
-            $or: [
-                { name: { $regex: queryLower, $options: 'i' } },
-                { description: { $regex: queryLower, $options: 'i' } },
-                { tags: { $in: [new RegExp(queryLower, 'i')] } }
-            ]
-        })
-        .populate('category', 'name')
-        .sort({ 
-            isFeatured: -1, 
-            viewCount: -1, 
-            rating: -1 
-        })
-        .limit(limit)
-        .select('name description tags category rating viewCount isFeatured');
+        // Có query: ưu tiên prefix/autocomplete trên ES
+        const q = trimmed.toLowerCase();
 
-        const suggestions = [];
-
-        // Thêm sản phẩm vào suggestions
-        products.forEach(product => {
-            suggestions.push({
-                text: product.name,
-                score: product.isFeatured ? 10 : (product.viewCount || 0) + (product.rating || 0),
-                type: 'product',
-                source: 'name'
-            });
-
-            // Thêm danh mục nếu có
-            if (product.category && product.category.name) {
-                const categoryExists = suggestions.some(s => s.text === product.category.name);
-                if (!categoryExists) {
-                    suggestions.push({
-                        text: product.category.name,
-                        score: 5,
-                        type: 'category',
-                        source: 'category'
-                    });
-                }
-            }
-
-            // Thêm tags nếu có
-            if (product.tags && product.tags.length > 0) {
-                product.tags.forEach(tag => {
-                    if (tag.toLowerCase().includes(queryLower)) {
-                        const tagExists = suggestions.some(s => s.text === tag);
-                        if (!tagExists) {
-                            suggestions.push({
-                                text: tag,
-                                score: 3,
-                                type: 'tag',
-                                source: 'tags'
-                            });
+        // Thử dùng suggest API (nếu trường suggest đã được index). Nếu không có, vẫn có kết quả fallback từ truy vấn search phía dưới.
+        const [suggestRes, searchRes] = await Promise.all([
+            client.search({
+                index: PRODUCTS_INDEX,
+                body: {
+                    size: 0,
+                    suggest: {
+                        name_suggest: {
+                            prefix: q,
+                            completion: { field: 'name.suggest', size: limit, skip_duplicates: true }
+                        },
+                        category_suggest: {
+                            prefix: q,
+                            completion: { field: 'categoryName.suggest', size: limit, skip_duplicates: true }
+                        },
+                        tag_suggest: {
+                            prefix: q,
+                            completion: { field: 'tags.suggest', size: limit, skip_duplicates: true }
                         }
                     }
+                }
+            }).catch(() => null),
+            client.search({
+                index: PRODUCTS_INDEX,
+                body: {
+                    size: limit,
+                    query: {
+                        bool: {
+                            must: [ { term: { isActive: true } } ],
+                            should: [
+                                { match_phrase_prefix: { 'name.autocomplete': q } },
+                                { wildcard: { 'name': `*${q}*` } },
+                                { wildcard: { 'categoryName': `*${q}*` } },
+                                { wildcard: { 'tags': `*${q}*` } }
+                            ],
+                            minimum_should_match: 1
+                        }
+                    },
+                    sort: [
+                        { isFeatured: { order: 'desc' } },
+                        { viewCount: { order: 'desc' } },
+                        { rating: { order: 'desc' } }
+                    ]
+                }
+            })
+        ]);
+
+        const out = [];
+
+        // Map từ suggest API nếu có
+        if (suggestRes && suggestRes.suggest) {
+            const pushOption = (opt, type) => {
+                if (!opt || !opt.text) return;
+                out.push({
+                    text: opt.text,
+                    score: opt._score || 1,
+                    type,
+                    source: 'es-suggest'
+                });
+            };
+
+            (suggestRes.suggest.name_suggest?.[0]?.options || []).forEach(o => pushOption(o, 'product'));
+            (suggestRes.suggest.category_suggest?.[0]?.options || []).forEach(o => pushOption(o, 'category'));
+            // Bỏ qua tag suggestions theo yêu cầu trước đây, nhưng vẫn có thể tận dụng nếu muốn
+        }
+
+        // Fallback + bổ sung: lấy từ search hits
+        const hits = searchRes.hits.hits || [];
+
+        // Sản phẩm
+        hits.forEach(hit => {
+            out.push({
+                text: hit._source.name,
+                score: (hit._source.isFeatured ? 10 : 0) + (hit._source.viewCount || 0) + (hit._source.rating || 0),
+                type: 'product',
+                source: 'es-search',
+                productId: hit._id
+            });
+        });
+
+        // Danh mục: suy ra từ các hit (lấy id từ field category, tên từ categoryName)
+        const seenCategories = new Set();
+        hits.forEach(hit => {
+            const catId = hit._source.category;
+            const catName = hit._source.categoryName;
+            if (catId && catName && !seenCategories.has(catId) && catName.toLowerCase().includes(q)) {
+                seenCategories.add(catId);
+                out.push({
+                    text: catName,
+                    score: 5,
+                    type: 'category',
+                    source: 'es-derived',
+                    categoryId: catId
                 });
             }
         });
 
-        // Sắp xếp theo score và loại bỏ trùng lặp
-        const uniqueSuggestions = suggestions
-            .filter((suggestion, index, self) => 
-                index === self.findIndex(s => s.text === suggestion.text)
-            )
-            .sort((a, b) => b.score - a.score)
-            .slice(0, limit);
+        // Lọc trùng theo text + ưu tiên product trước
+        const dedup = [];
+        const seenText = new Set();
+        out
+            .filter(s => !!s.text)
+            .sort((a, b) => {
+                if (a.type === 'product' && b.type !== 'product') return -1;
+                if (b.type === 'product' && a.type !== 'product') return 1;
+                return (b.score || 0) - (a.score || 0);
+            })
+            .forEach(item => {
+                if (!seenText.has(item.text)) {
+                    seenText.add(item.text);
+                    dedup.push(item);
+                }
+            });
+
+        const sliced = dedup.slice(0, limit);
 
         return {
             EC: 0,
-            EM: 'Suggestions retrieved successfully',
-            DT: uniqueSuggestions
+            EM: 'Suggestions retrieved successfully (ES)',
+            DT: sliced
         };
     } catch (error) {
-        console.error('❌ Error getting suggestions:', error);
+        console.error('❌ Error getting suggestions (ES):', error);
         return {
             EC: -1,
             EM: 'Failed to get suggestions',

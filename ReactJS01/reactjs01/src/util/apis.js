@@ -35,6 +35,12 @@ const getAllProductsApi = (page = 1, limit = 12, search = '') => {
     });
 }
 
+const getFeaturedProductsApi = (page = 1, limit = 12) => {
+    return axios.get(`${config.API_ENDPOINTS.PRODUCTS}/featured`, {
+        params: { page, limit }
+    });
+}
+
 const getProductByIdApi = (productId) => {
     return axios.get(`${config.API_ENDPOINTS.PRODUCTS}/${productId}`);
 }
@@ -182,6 +188,7 @@ export {
     getAllCategoriesApi,
     getCategoryByIdApi,
     getAllProductsApi,
+    getFeaturedProductsApi,
     getProductByIdApi,
     getProductsByCategoryApi,
     advancedSearchProductsApi,

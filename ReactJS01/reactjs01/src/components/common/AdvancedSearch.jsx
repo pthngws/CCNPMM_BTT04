@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Row,
     Col,
@@ -38,6 +39,7 @@ const AdvancedSearch = ({
     categories = [],
     initialFilters = {}
 }) => {
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useState({
         query: initialFilters.query || '',
         category: initialFilters.category || '',
@@ -67,25 +69,13 @@ const AdvancedSearch = ({
                     const popular = response.DT.slice(0, 8).map(item => ({
                         value: item.text,
                         label: (
-                            <div style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
                                 gap: '8px',
                                 padding: '4px 0'
                             }}>
-                                <span style={{ 
-                                    fontSize: '11px', 
-                                    padding: '2px 6px', 
-                                    borderRadius: '3px',
-                                    background: '#f0f0f0',
-                                    color: '#666',
-                                    fontWeight: '500',
-                                    minWidth: '60px',
-                                    textAlign: 'center'
-                                }}>
-                                    Phổ biến
-                                </span>
-                                <span style={{ 
+                                <span style={{
                                     flex: 1,
                                     fontSize: '14px',
                                     fontWeight: '400'
@@ -94,7 +84,8 @@ const AdvancedSearch = ({
                                 </span>
                             </div>
                         ),
-                        type: 'popular'
+                        type: 'product',
+                        productId: item.productId
                     }));
                     setPopularSuggestions(popular);
                 }
@@ -117,59 +108,37 @@ const AdvancedSearch = ({
                 // Tăng số lượng suggestions và ưu tiên sản phẩm
                 const response = await getSearchSuggestionsApi(query, 20);
                 if (response && response.EC === 0) {
+                    // Chỉ hiển thị sản phẩm và danh mục; bỏ tag
+                    const filtered = response.DT.filter(item => item.type === 'product' || item.type === 'category');
                     // Sắp xếp để sản phẩm lên đầu
-                    const sortedSuggestions = response.DT.sort((a, b) => {
+                    const sortedSuggestions = filtered.sort((a, b) => {
                         if (a.type === 'product' && b.type !== 'product') return -1;
                         if (b.type === 'product' && a.type !== 'product') return 1;
-                        return b.score - a.score;
+                        return (b.score || 0) - (a.score || 0);
                     });
 
                     const suggestions = sortedSuggestions.map(item => ({
                         value: item.text,
                         label: (
-                            <div style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
                                 gap: '8px',
                                 padding: '4px 0'
                             }}>
-                                <span style={{ 
-                                    fontSize: '11px', 
-                                    padding: '2px 6px', 
-                                    borderRadius: '3px',
-                                    background: item.type === 'product' ? '#e6f7ff' : 
-                                               item.type === 'category' ? '#f6ffed' : '#fff7e6',
-                                    color: item.type === 'product' ? '#1890ff' : 
-                                           item.type === 'category' ? '#52c41a' : '#fa8c14',
-                                    fontWeight: '500',
-                                    minWidth: '60px',
-                                    textAlign: 'center'
-                                }}>
-                                    {item.type === 'product' ? 'Sản phẩm' : 
-                                     item.type === 'category' ? 'Danh mục' : 'Tag'}
-                                </span>
-                                <span style={{ 
+                                <span style={{
                                     flex: 1,
                                     fontSize: '14px',
                                     fontWeight: item.type === 'product' ? '500' : '400'
                                 }}>
                                     {item.text}
                                 </span>
-                                {item.type === 'product' && (
-                                    <span style={{
-                                        fontSize: '10px',
-                                        color: '#8c8c8c',
-                                        background: '#f5f5f5',
-                                        padding: '1px 4px',
-                                        borderRadius: '2px'
-                                    }}>
-                                        {item.score.toFixed(1)}
-                                    </span>
-                                )}
                             </div>
                         ),
                         type: item.type,
-                        score: item.score
+                        score: item.score,
+                        productId: item.productId,
+                        categoryId: item.categoryId
                     }));
                     setSuggestions(suggestions);
                 }
@@ -183,13 +152,13 @@ const AdvancedSearch = ({
     // Handle search input change
     const handleSearchChange = (value) => {
         setSearchParams(prev => ({ ...prev, query: value }));
-        
+
         // Nếu input rỗng, hiển thị popular suggestions
         if (value.length === 0) {
             setSuggestions(popularSuggestions);
         } else {
             // Gọi suggestions ngay lập tức
-        getSuggestions(value);
+            getSuggestions(value);
         }
     };
 
@@ -296,7 +265,6 @@ const AdvancedSearch = ({
                             options={suggestions.length > 0 ? suggestions : popularSuggestions}
                             value={searchParams.query}
                             onChange={handleSearchChange}
-                            placeholder="Gõ để tìm kiếm sản phẩm... (ví dụ: gõ 'i' để xem gợi ý)"
                             style={{ width: '100%' }}
                             size="large"
                             dropdownStyle={{
@@ -314,8 +282,8 @@ const AdvancedSearch = ({
                             }}
                             notFoundContent={
                                 searchParams.query.length > 0 ? (
-                                    <div style={{ 
-                                        padding: 'var(--space-md)', 
+                                    <div style={{
+                                        padding: 'var(--space-md)',
                                         textAlign: 'center',
                                         color: 'var(--text-secondary)'
                                     }}>
@@ -323,21 +291,24 @@ const AdvancedSearch = ({
                                         <div>Không tìm thấy gợi ý cho "{searchParams.query}"</div>
                                     </div>
                                 ) : (
-                                    <div style={{ 
-                                        padding: 'var(--space-md)', 
+                                    <div style={{
+                                        padding: 'var(--space-md)',
                                         textAlign: 'center',
                                         color: 'var(--text-secondary)'
                                     }}>
                                         <SearchOutlined style={{ fontSize: '24px', marginBottom: 'var(--space-sm)' }} />
-                                        <div>Gõ để tìm kiếm sản phẩm</div>
                                     </div>
                                 )
                             }
                             onSelect={(value, option) => {
-                                console.log('Selected:', value, option);
-                                handleSearchChange(value);
-                                // Tự động search khi chọn suggestion
-                                setTimeout(() => handleSearch(), 100);
+                                if (option?.type === 'product' && option?.productId) {
+                                    navigate(`/product/${option.productId}`);
+                                } else if (option?.type === 'category' && option?.categoryId) {
+                                    navigate(`/category/${option.categoryId}`);
+                                } else {
+                                    handleSearchChange(value);
+                                    setTimeout(() => handleSearch(), 50);
+                                }
                             }}
                         >
                             <Input
@@ -345,6 +316,9 @@ const AdvancedSearch = ({
                                 onPressEnter={() => handleSearch()}
                                 allowClear
                                 style={{
+                                    width: '100%',
+                                    height: '40px',
+                                    fontSize: '14px',
                                     borderRadius: 'var(--radius-sm)',
                                     border: '1px solid var(--border-color)',
                                     transition: 'var(--transition)'

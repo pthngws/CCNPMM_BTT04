@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { AuthContext } from '../components/context/auth.context';
 import { useNavigate } from 'react-router-dom';
-import { getAllCategoriesApi, getAllProductsApi } from '../util/apis';
+import { getAllCategoriesApi, getFeaturedProductsApi } from '../util/apis';
 import CategoryCard from '../components/common/CategoryCard';
 import ProductCard from '../components/common/ProductCard';
 import HeroSlider from '../components/common/HeroSlider';
@@ -42,9 +42,9 @@ const HomePage = () => {
             }
 
             // Fetch featured products
-            const productsResponse = await getAllProductsApi(1, 8);
+            const productsResponse = await getFeaturedProductsApi(1, 8);
             if (productsResponse && productsResponse.EC === 0) {
-                setFeaturedProducts(productsResponse.DT?.products?.slice(0, 8) || []);
+                setFeaturedProducts(productsResponse.DT?.products || []);
             }
         } catch (err) {
             console.error('Error fetching home data:', err);

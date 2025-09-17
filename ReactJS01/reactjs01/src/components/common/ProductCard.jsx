@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Image, Typography, Space, Tag, Button, Badge, Tooltip, message } from 'antd';
-import { ShoppingCartOutlined, EyeOutlined, StarOutlined, FireOutlined, CrownOutlined, HeartOutlined, HeartFilled, MessageOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { ShoppingCartOutlined, EyeOutlined, StarOutlined, FireOutlined, CrownOutlined, HeartOutlined, HeartFilled, ShoppingOutlined, MessageOutlined } from '@ant-design/icons';
 import { addToFavoritesApi, removeFromFavoritesApi, isFavoriteApi, addToViewedProductsApi } from '../../util/apis';
 import { useCart } from '../context/cart.context';
 import { getRandomProductImage } from '../../constants/images';
 
 const { Title, Text } = Typography;
 
-const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
+const ProductCard = ({ product }) => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const [isFavorite, setIsFavorite] = useState(false);
@@ -18,7 +18,7 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
-            currency: 'VND'
+            currency: 'VND',
         }).format(price);
     };
 
@@ -29,7 +29,6 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
 
     const discount = calculateDiscount(product.originalPrice, product.price);
 
-    // Check if product is favorite on mount
     useEffect(() => {
         const checkFavoriteStatus = async () => {
             try {
@@ -41,15 +40,12 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                 console.error('Error checking favorite status:', error);
             }
         };
-
         checkFavoriteStatus();
     }, [product._id]);
 
-    // Handle favorite toggle
     const handleFavoriteToggle = async (e) => {
         e.stopPropagation();
         setFavoriteLoading(true);
-        
         try {
             if (isFavorite) {
                 const response = await removeFromFavoritesApi(product._id);
@@ -76,22 +72,17 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
         }
     };
 
-    // Handle view detail with tracking
-    const handleViewDetail = async (product) => {
+    const handleViewDetail = async () => {
         try {
-            // Track viewed product
             await addToViewedProductsApi(product._id);
         } catch (error) {
             console.error('Error tracking viewed product:', error);
         }
-        
-        // Navigate to product detail page
         navigate(`/product/${product._id}`);
     };
 
     const handleAddToCartClick = async (e) => {
-        e.stopPropagation(); // Prevent card click event
-        
+        e.stopPropagation();
         try {
             setCartLoading(true);
             await addToCart(product._id, 1);
@@ -108,7 +99,7 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
             hoverable
             className="card-fpt"
             style={{
-                borderRadius: 'var(--radius-2xl)',
+                borderRadius: 'var(--radius-xl)',
                 boxShadow: 'var(--shadow-sm)',
                 border: '1px solid var(--border-light)',
                 overflow: 'hidden',
@@ -116,366 +107,301 @@ const ProductCard = ({ product, onViewDetail, onAddToCart }) => {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative'
             }}
-            bodyStyle={{ 
-                padding: 'var(--space-lg)',
+            bodyStyle={{
+                padding: 'var(--space-md)',
                 flex: 1,
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
             }}
             cover={
-                <div style={{ 
-                    position: 'relative', 
-                    overflow: 'hidden',
-                    aspectRatio: '1',
-                    background: 'var(--background-light)',
-                    borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0'
-                }}>
+                <div
+                    style={{
+                        position: 'relative',
+                        aspectRatio: '1',
+                        background: 'var(--background-light)',
+                    }}
+                >
                     <Image
                         alt={product.name}
                         src={product.images?.[0] || getRandomProductImage()}
-                        style={{ 
+                        style={{
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
-                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                            borderRadius: 'var(--radius-lg)',
-                            margin: 'var(--space-sm)',
-                            width: 'calc(100% - var(--space-md))',
-                            height: 'calc(100% - var(--space-md))'
+                            borderRadius: 'var(--radius-md)',
+                            transition: 'transform 0.3s ease',
                         }}
                         preview={false}
-                        onMouseEnter={(e) => {
-                            e.target.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.transform = 'scale(1)';
-                        }}
+                        onMouseEnter={(e) => (e.target.style.transform = 'scale(1.03)')}
+                        onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
                     />
-                    
-                    {/* Badges */}
-                    <div style={{ 
-                        position: 'absolute', 
-                        top: 'var(--space-sm)', 
-                        left: 'var(--space-sm)', 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: 'var(--space-xs)',
-                        zIndex: 2
-                    }}>
-                        {discount > 0 && (
-                            <Badge 
-                                count={`-${discount}%`}
-                                className="badge-fpt"
-                                style={{ 
-                                    backgroundColor: 'var(--error-color)',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '12px',
-                                    fontWeight: '700',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px'
-                                }}
-                            />
-                        )}
-                        {product.isFeatured && (
-                            <Tooltip title="Sản phẩm nổi bật">
-                                <div className="badge-fpt" style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    background: 'var(--primary-color)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: 'var(--shadow-sm)'
-                                }}>
-                                    <CrownOutlined style={{ 
-                                        color: 'var(--text-white)',
-                                        fontSize: '12px'
-                                    }} />
-                                </div>
-                            </Tooltip>
-                        )}
-                        {product.isOnSale && (
-                            <Tooltip title="Đang khuyến mãi">
-                                <div className="badge-fpt" style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    background: 'var(--error-color)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: 'var(--shadow-sm)'
-                                }}>
-                                    <FireOutlined style={{ 
-                                        color: 'var(--text-white)',
-                                        fontSize: '12px'
-                                    }} />
-                                </div>
-                            </Tooltip>
-                        )}
-                    </div>
-                    
+                    {/* Featured Badge */}
+                    {product.isFeatured && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 'var(--space-sm)',
+                                left: 'var(--space-sm)',
+                                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+                                color: 'white',
+                                padding: '4px 8px',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                zIndex: 2
+                            }}
+                        >
+                            <CrownOutlined style={{ fontSize: '10px' }} />
+                            Nổi bật
+                        </div>
+                    )}
+                    {/* Discount Badge */}
+                    {discount > 0 && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: product.isFeatured ? '40px' : 'var(--space-sm)',
+                                left: 'var(--space-sm)',
+                                background: 'linear-gradient(135deg, #ff4757, #c44569)',
+                                color: 'white',
+                                padding: '4px 8px',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                zIndex: 2
+                            }}
+                        >
+                            <FireOutlined style={{ fontSize: '10px' }} />
+                            -{discount}%
+                        </div>
+                    )}
+                    {/* Sale Badge */}
+                    {product.isOnSale && !discount && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: product.isFeatured ? '40px' : 'var(--space-sm)',
+                                left: 'var(--space-sm)',
+                                background: 'linear-gradient(135deg, #ff9ff3, #f368e0)',
+                                color: 'white',
+                                padding: '4px 8px',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                zIndex: 2
+                            }}
+                        >
+                            <FireOutlined style={{ fontSize: '10px' }} />
+                            Khuyến mãi
+                        </div>
+                    )}
                     {/* Favorite Button */}
-                    <div style={{ 
-                        position: 'absolute', 
-                        top: 'var(--space-sm)', 
-                        right: 'var(--space-sm)', 
-                        zIndex: 2
-                    }}>
-                        <Tooltip title={isFavorite ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}>
-                            <Button
-                                type="text"
-                                shape="circle"
-                                icon={isFavorite ? <HeartFilled /> : <HeartOutlined />}
-                                onClick={handleFavoriteToggle}
-                                loading={favoriteLoading}
-                                style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    background: 'rgba(255, 255, 255, 0.9)',
-                                    border: 'none',
-                                    color: isFavorite ? '#ff4d4f' : '#8c8c8c',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                                    backdropFilter: 'blur(4px)'
-                                }}
-                            />
-                        </Tooltip>
-                    </div>
-                    
+                    <Tooltip title={isFavorite ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}>
+                        <Button
+                            type="text"
+                            shape="circle"
+                            icon={isFavorite ? <HeartFilled /> : <HeartOutlined />}
+                            onClick={handleFavoriteToggle}
+                            loading={favoriteLoading}
+                            style={{
+                                position: 'absolute',
+                                top: 'var(--space-sm)',
+                                right: 'var(--space-sm)',
+                                width: '30px',
+                                height: '30px',
+                                background: 'rgba(255, 255, 255, 0.9)',
+                                border: 'none',
+                                color: isFavorite ? 'var(--error-color)' : 'var(--text-light)',
+                                boxShadow: 'var(--shadow-sm)',
+                            }}
+                        />
+                    </Tooltip>
+                    {/* Out of Stock Overlay */}
                     {product.stock === 0 && (
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontSize: 'var(--font-size-lg)',
-                            fontWeight: '600',
-                            backdropFilter: 'blur(2px)',
-                            zIndex: 3
-                        }}>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                background: 'rgba(0, 0, 0, 0.6)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--text-white)',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                borderRadius: 'var(--radius-md)',
+                            }}
+                        >
                             Hết hàng
                         </div>
                     )}
                 </div>
             }
-            actions={[
-                <Button 
-                    type="primary" 
-                    icon={<EyeOutlined />} 
-                    onClick={() => handleViewDetail(product)}
-                    block
-                    className="btn-fpt"
-                    style={{
-                        borderRadius: 'var(--radius-md)',
-                        height: '44px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                        padding: '0 var(--space-lg)',
-                        background: 'var(--primary-color)',
-                        border: '2px solid var(--primary-color)',
-                        color: 'var(--text-white)',
-                        boxShadow: 'var(--shadow-sm)'
-                    }}
-                >
-                    Xem chi tiết
-                </Button>,
-                <Button 
-                    type="default" 
-                    icon={<ShoppingCartOutlined />} 
-                    onClick={handleAddToCartClick}
-                    loading={cartLoading}
-                    disabled={product.stock === 0}
-                    block
-                    className="btn-fpt-outline"
-                    style={{
-                        borderRadius: 'var(--radius-md)',
-                        height: '44px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                        padding: '0 var(--space-lg)',
-                        border: '2px solid var(--primary-color)',
-                        background: product.stock === 0 ? 'var(--background-light)' : 'transparent',
-                        color: product.stock === 0 ? 'var(--text-light)' : 'var(--primary-color)',
-                        boxShadow: 'var(--shadow-sm)'
-                    }}
-                >
-                    Thêm vào giỏ
-                </Button>
-            ]}
         >
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Title level={5} style={{ 
-                    margin: 0, 
-                    marginBottom: 'var(--space-sm)',
-                    color: 'var(--text-color)',
-                    fontWeight: '600',
-                    lineHeight: '1.4',
-                    fontSize: '14px',
-                    minHeight: '40px',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                <Title
+                    level={5}
+                    style={{
+                        margin: 0,
+                        color: 'var(--text-color)',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        lineHeight: '1.3',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                    }}
+                >
                     {product.name}
                 </Title>
-                
-                <div style={{ marginBottom: 'var(--space-sm)' }}>
-                    <Space align="baseline">
-                        <Text strong style={{ 
-                            fontSize: '16px', 
+                <Space align="baseline">
+                    <Text
+                        strong
+                        style={{
+                            fontSize: '16px',
                             color: 'var(--error-color)',
-                            fontWeight: '600'
-                        }}>
-                            {formatPrice(product.price)}
-                        </Text>
-                        {product.originalPrice && product.originalPrice > product.price && (
-                            <Text delete style={{ 
-                                fontSize: '12px', 
-                                color: 'var(--text-light)'
-                            }}>
-                                {formatPrice(product.originalPrice)}
-                            </Text>
-                        )}
-                    </Space>
-                </div>
-                
-                {product.rating > 0 && (
-                    <div style={{ marginBottom: 'var(--space-sm)' }}>
-                        <Space size="small">
-                            <StarOutlined style={{ 
-                                color: 'var(--warning-color)',
-                                fontSize: '12px'
-                            }} />
-                            <Text style={{ 
+                            fontWeight: '600',
+                        }}
+                    >
+                        {formatPrice(product.price)}
+                    </Text>
+                    {product.originalPrice && product.originalPrice > product.price && (
+                        <Text
+                            delete
+                            style={{
                                 fontSize: '12px',
-                                color: 'var(--text-secondary)',
-                                fontWeight: '500'
-                            }}>
-                                {product.rating.toFixed(1)} ({product.reviewCount} đánh giá)
-                            </Text>
-                        </Space>
-                    </div>
-                )}
-
-                {/* Stats Row */}
-                <div style={{ 
-                    marginBottom: 'var(--space-sm)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: 'var(--space-xs)'
-                }}>
-                    <Space size="small" wrap>
-                        {product.purchaseCount > 0 && (
-                            <Space size="xs">
-                                <ShoppingOutlined style={{ 
-                                    color: 'var(--success-color)',
-                                    fontSize: '11px'
-                                }} />
-                                <Text style={{ 
-                                    fontSize: '11px',
-                                    color: 'var(--text-secondary)',
-                                    fontWeight: '500'
-                                }}>
-                                    {product.purchaseCount} đã mua
-                                </Text>
-                            </Space>
-                        )}
-                        {product.commentCount > 0 && (
-                            <Space size="xs">
-                                <MessageOutlined style={{ 
-                                    color: 'var(--primary-color)',
-                                    fontSize: '11px'
-                                }} />
-                                <Text style={{ 
-                                    fontSize: '11px',
-                                    color: 'var(--text-secondary)',
-                                    fontWeight: '500'
-                                }}>
-                                    {product.commentCount} bình luận
-                                </Text>
-                            </Space>
-                        )}
-                        {product.favoriteCount > 0 && (
-                            <Space size="xs">
-                                <HeartOutlined style={{ 
-                                    color: '#ff4d4f',
-                                    fontSize: '11px'
-                                }} />
-                                <Text style={{ 
-                                    fontSize: '11px',
-                                    color: 'var(--text-secondary)',
-                                    fontWeight: '500'
-                                }}>
-                                    {product.favoriteCount} yêu thích
-                                </Text>
-                            </Space>
-                        )}
+                                color: 'var(--text-light)',
+                            }}
+                        >
+                            {formatPrice(product.originalPrice)}
+                        </Text>
+                    )}
+                </Space>
+                {product.rating > 0 && (
+                    <Space size="small">
+                        <StarOutlined style={{ color: 'var(--warning-color)', fontSize: '12px' }} />
+                        <Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                            {product.rating.toFixed(1)} ({product.reviewCount} đánh giá)
+                        </Text>
                     </Space>
-                </div>
-                
-                <div className="badge-fpt" style={{
-                    background: product.stock > 10 ? 'var(--success-color)' : product.stock > 0 ? 'var(--warning-color)' : 'var(--error-color)',
-                    color: 'var(--text-white)',
-                    padding: 'var(--space-xs) var(--space-sm)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    textAlign: 'center',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: 'var(--space-sm)'
-                }}>
-                    {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'} • {product.stock} sản phẩm
-                </div>
-                
-                {product.tags && product.tags.length > 0 && (
-                    <div style={{ marginTop: 'auto' }}>
-                        <Space wrap size="small">
-                            {product.tags.slice(0, 2).map((tag, index) => (
-                                <Tag 
-                                    key={index} 
-                                    size="small"
-                                    style={{
-                                        borderRadius: 'var(--radius-sm)',
-                                        background: 'var(--primary-light)',
-                                        border: '1px solid var(--primary-color)',
-                                        color: 'var(--primary-color)',
-                                        fontSize: '11px',
-                                        fontWeight: '500',
-                                        padding: '1px 6px'
-                                    }}
-                                >
-                                    {tag}
-                                </Tag>
-                            ))}
-                        </Space>
-                    </div>
                 )}
+                <Space size="small" wrap>
+                    {product.purchaseCount > 0 && (
+                        <Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                            <ShoppingOutlined style={{ color: 'var(--success-color)', marginRight: '4px' }} />
+                            {product.purchaseCount} đã mua
+                        </Text>
+                    )}
+                    {product.commentCount > 0 && (
+                        <Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                            <MessageOutlined style={{ color: 'var(--primary-color)', marginRight: '4px' }} />
+                            {product.commentCount} bình luận
+                        </Text>
+                    )}
+                </Space>
+                <div
+                    style={{
+                        background:
+                            product.stock > 10
+                                ? 'var(--success-color)'
+                                : product.stock > 0
+                                    ? 'var(--warning-color)'
+                                    : 'var(--error-color)',
+                        color: 'var(--text-white)',
+                        padding: '4px 8px',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        alignSelf: 'flex-start',
+                    }}
+                >
+                    {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'}
+                </div>
+                {product.tags && product.tags.length > 0 && (
+                    <Space size="small" wrap>
+                        {product.tags.slice(0, 2).map((tag, index) => (
+                            <Tag
+                                key={index}
+                                style={{
+                                    borderRadius: 'var(--radius-sm)',
+                                    background: 'var(--primary-light)',
+                                    border: '1px solid var(--primary-color)',
+                                    color: 'var(--primary-color)',
+                                    fontSize: '12px',
+                                    padding: '2px 6px',
+                                }}
+                            >
+                                {tag}
+                            </Tag>
+                        ))}
+                    </Space>
+                )}
+                <Space
+                    size="small"
+                    style={{ marginTop: 'auto', width: '100%', justifyContent: 'space-between' }}
+                >
+                    <Button
+                        type="primary"
+                        icon={<EyeOutlined />}
+                        onClick={handleViewDetail}
+                        style={{
+                            borderRadius: 'var(--radius-md)',
+                            height: '36px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            background: 'var(--primary-color)',
+                            border: 'none',
+                            flex: 1,
+                        }}
+                    >
+                        Xem chi tiết
+                    </Button>
+                    <Button
+                        type="default"
+                        icon={<ShoppingCartOutlined />}
+                        onClick={handleAddToCartClick}
+                        loading={cartLoading}
+                        disabled={product.stock === 0}
+                        style={{
+                            borderRadius: 'var(--radius-md)',
+                            height: '36px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            border: '2px solid var(--primary-color)',
+                            background: 'transparent',
+                            color: product.stock === 0 ? 'var(--text-light)' : 'var(--primary-color)',
+                            flex: 1,
+                        }}
+                    >
+                        Thêm vào giỏ
+                    </Button>
+                </Space>
             </div>
         </Card>
     );
 };
 
 export default ProductCard;
-
-

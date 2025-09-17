@@ -61,7 +61,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate();
     const { auth } = useContext(AuthContext);
     const { addToCart } = useCart();
-    
+
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -173,17 +173,15 @@ const ProductDetailPage = () => {
         }).format(price);
     };
 
-    const getDiscountPrice = (originalPrice, discount) => {
-        return originalPrice * (1 - discount / 100);
-    };
+
 
     if (loading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                minHeight: '400px' 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '400px'
             }}>
                 <Spin size="large" />
             </div>
@@ -226,23 +224,21 @@ const ProductDetailPage = () => {
         );
     }
 
-    const currentPrice = product.discount > 0 ? 
-        getDiscountPrice(product.price, product.discount) : 
-        product.price;
+    const currentPrice = product.price;
 
     return (
-        <div style={{ 
-            padding: '24px', 
-            maxWidth: '1400px', 
+        <div style={{
+            padding: '24px',
+            maxWidth: '1400px',
             margin: '0 auto',
             background: '#f8f9fa',
             minHeight: '100vh'
         }}>
             {/* Breadcrumb */}
             <div style={{ marginBottom: '24px' }}>
-                <Button 
-                    type="text" 
-                    icon={<LeftOutlined />} 
+                <Button
+                    type="text"
+                    icon={<LeftOutlined />}
                     onClick={() => navigate(-1)}
                     style={{ marginBottom: '16px' }}
                 >
@@ -258,8 +254,8 @@ const ProductDetailPage = () => {
                             <Image
                                 src={product.images?.[selectedImage] || '/placeholder-image.jpg'}
                                 alt={product.name}
-                                style={{ 
-                                    maxWidth: '100%', 
+                                style={{
+                                    maxWidth: '100%',
                                     maxHeight: '500px',
                                     objectFit: 'contain',
                                     borderRadius: '8px'
@@ -267,12 +263,12 @@ const ProductDetailPage = () => {
                                 fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
                             />
                         </div>
-                        
+
                         {/* Thumbnail Images */}
                         {product.images && product.images.length > 1 && (
-                            <div style={{ 
-                                display: 'flex', 
-                                gap: '8px', 
+                            <div style={{
+                                display: 'flex',
+                                gap: '8px',
                                 marginTop: '16px',
                                 overflowX: 'auto',
                                 padding: '8px 0'
@@ -315,9 +311,9 @@ const ProductDetailPage = () => {
                             {/* Rating & Reviews */}
                             <div>
                                 <Space align="center" size="large">
-                                    <Rate 
-                                        disabled 
-                                        value={product.rating || 0} 
+                                    <Rate
+                                        disabled
+                                        value={product.rating || 0}
                                         style={{ fontSize: '18px' }}
                                     />
                                     <Text strong>({product.rating || 0})</Text>
@@ -336,7 +332,7 @@ const ProductDetailPage = () => {
                                     {product.discount > 0 && (
                                         <>
                                             <Text delete type="secondary" style={{ fontSize: '18px' }}>
-                                                {formatPrice(product.price)}
+                                                {formatPrice(product.originalPrice)}
                                             </Text>
                                             <Tag color="red" style={{ fontSize: '14px', padding: '4px 8px' }}>
                                                 -{product.discount}%
@@ -399,7 +395,7 @@ const ProductDetailPage = () => {
                                             size="large"
                                             icon={<ShoppingCartOutlined />}
                                             onClick={handleAddToCart}
-                                            style={{ 
+                                            style={{
                                                 minWidth: '160px',
                                                 height: '48px',
                                                 fontSize: '16px',
@@ -408,13 +404,13 @@ const ProductDetailPage = () => {
                                         >
                                             Thêm vào giỏ
                                         </Button>
-                                        
+
                                         <Button
                                             size="large"
                                             icon={<HeartOutlined />}
                                             onClick={handleFavoriteToggle}
                                             loading={favoriteLoading}
-                                            style={{ 
+                                            style={{
                                                 minWidth: '160px',
                                                 height: '48px',
                                                 fontSize: '16px',
@@ -428,7 +424,7 @@ const ProductDetailPage = () => {
                                         <Button
                                             size="large"
                                             icon={<ShareAltOutlined />}
-                                            style={{ 
+                                            style={{
                                                 minWidth: '120px',
                                                 height: '48px',
                                                 fontSize: '16px'
@@ -467,13 +463,13 @@ const ProductDetailPage = () => {
                 <Col span={24}>
                     <Card style={{ borderRadius: '12px' }}>
                         <Tabs defaultActiveKey="description" size="large">
-                            <TabPane 
+                            <TabPane
                                 tab={
                                     <span>
                                         <MessageOutlined />
                                         Mô tả sản phẩm
                                     </span>
-                                } 
+                                }
                                 key="description"
                             >
                                 <div style={{ padding: '16px 0' }}>
@@ -482,17 +478,17 @@ const ProductDetailPage = () => {
                                     </Paragraph>
                                 </div>
                             </TabPane>
-                            
-                            <TabPane 
+
+                            <TabPane
                                 tab={
                                     <span>
                                         <StarOutlined />
                                         Đánh giá & Bình luận ({product.commentCount || 0})
                                     </span>
-                                } 
+                                }
                                 key="reviews"
                             >
-                                <CommentSystem 
+                                <CommentSystem
                                     productId={id}
                                     onCommentAdded={handleCommentAdded}
                                 />

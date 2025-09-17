@@ -4,6 +4,7 @@ const { getAllCategories, getCategoryById, createCategory } = require('../contro
 const { 
     getProductsByCategory, 
     getAllProducts, 
+    getFeaturedProducts,
     advancedSearchProducts, 
     getSearchSuggestions, 
     getProductById, 
@@ -57,6 +58,7 @@ const routerAPI = express.Router();
 routerAPI.get('/categories', getAllCategories);
 routerAPI.get('/categories/:id', getCategoryById);
 routerAPI.get('/products', getAllProducts);
+routerAPI.get('/products/featured', getFeaturedProducts);
 routerAPI.get('/products/search', advancedSearchProducts);
 routerAPI.get('/products/suggestions', getSearchSuggestions);
 routerAPI.get('/products/similar/:id', getSimilarProducts);
