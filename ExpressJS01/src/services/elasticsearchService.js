@@ -6,7 +6,7 @@ const Category = require('../models/category');
 const indexProduct = async (product) => {
     try {
         const category = await Category.findById(product.category);
-        
+
         const document = {
             _id: product._id.toString(),
             name: product.name,
@@ -66,7 +66,7 @@ const indexProduct = async (product) => {
 const bulkIndexProducts = async (products) => {
     try {
         const body = [];
-        
+
         for (const product of products) {
             const document = {
                 name: product.name,
@@ -120,7 +120,7 @@ const bulkIndexProducts = async (products) => {
                 console.log(`✅ Bulk indexed ${products.length} products successfully`);
             }
         }
-        
+
         return true;
     } catch (error) {
         console.error('❌ Error bulk indexing products:', error);
@@ -162,7 +162,7 @@ const searchProducts = async (searchParams) => {
         } = searchParams;
 
         const from = (page - 1) * limit;
-        
+
         // Xây dựng query body
         const queryBody = {
             index: PRODUCTS_INDEX,
@@ -211,7 +211,7 @@ const searchProducts = async (searchParams) => {
                             {
                                 multi_match: {
                                     query: q,
-                                    fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
+                                    fields: ['name^3', 'categoryName^2', 'tags'],
                                     type: 'best_fields',
                                     fuzziness: 'AUTO',
                                     prefix_length: 0,
@@ -299,7 +299,7 @@ const searchProducts = async (searchParams) => {
         }
 
         const response = await client.search(queryBody);
-        
+
         // Xử lý kết quả
         const products = response.hits.hits.map(hit => ({
             ...hit._source,
@@ -363,7 +363,7 @@ const getSearchSuggestions = async (query, limit = 10) => {
                     size: limit,
                     query: {
                         bool: {
-                            must: [ { term: { isActive: true } } ]
+                            must: [{ term: { isActive: true } }]
                         }
                     },
                     sort: [
@@ -420,7 +420,7 @@ const getSearchSuggestions = async (query, limit = 10) => {
                     size: limit,
                     query: {
                         bool: {
-                            must: [ { term: { isActive: true } } ],
+                            must: [{ term: { isActive: true } }],
                             should: [
                                 { match_phrase_prefix: { 'name.autocomplete': q } },
                                 { wildcard: { 'name': `*${q}*` } },
@@ -541,7 +541,7 @@ const getSortField = (sortBy) => {
 const reindexAllProducts = async () => {
     try {
         console.log('🔄 Starting reindex of all products...');
-        
+
         // Xóa index cũ
         try {
             await client.indices.delete({ index: PRODUCTS_INDEX });
@@ -550,17 +550,17 @@ const reindexAllProducts = async () => {
                 throw error;
             }
         }
-        
+
         // Tạo lại index
         const { initializeIndex } = require('../config/elasticsearch');
         await initializeIndex();
-        
+
         // Lấy tất cả products từ MongoDB
         const products = await Product.find({ isActive: true }).populate('category', 'name');
-        
+
         // Bulk index
         await bulkIndexProducts(products);
-        
+
         console.log(`✅ Reindex completed. Indexed ${products.length} products.`);
         return true;
     } catch (error) {
@@ -764,7 +764,7 @@ const getSearchFacets = async (searchParams) => {
             queryBody.body.query.bool.must.push({
                 multi_match: {
                     query: query,
-                    fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
+                    fields: ['name^3', 'categoryName^2', 'tags'],
                     type: 'best_fields',
                     fuzziness: 'AUTO'
                 }
@@ -828,7 +828,7 @@ const searchWithTypoTolerance = async (query, limit = 12) => {
                             {
                                 multi_match: {
                                     query: query,
-                                    fields: ['name^3', 'description^2', 'categoryName^2', 'tags'],
+                                    fields: ['name^3', 'categoryName^2', 'tags'],
                                     type: 'best_fields',
                                     fuzziness: 'AUTO',
                                     prefix_length: 1,
